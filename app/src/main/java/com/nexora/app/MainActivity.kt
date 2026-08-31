@@ -38,11 +38,19 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import java.util.Calendar
 
+enum class Priorite(val libelle: String, val couleur: Color) {
+    URGENTE("Urgente", Color(0xFFE53935)),
+    ELEVEE("Élevée", Color(0xFFFB8C00)),
+    MOYENNE("Moyenne", Color(0xFFFDD835)),
+    FAIBLE("Faible", Color(0xFF43A047))
+}
+
 data class Tache(
     val titre: String,
     val terminee: Boolean = false,
     val rappel: String = "",
-    val rappelMillis: Long = 0L
+    val rappelMillis: Long = 0L,
+    val priorite: Priorite = Priorite.MOYENNE
 )
 
 private val VioletNexora = Color(0xFF7B5CFF)
@@ -103,7 +111,9 @@ fun programmerAlarme(context: Context, tache: Tache) {
 
 fun sauvegarderTaches(context: Context, taches: List<Tache>) {
     val prefs = context.getSharedPreferences("nexora_prefs", Context.MODE_PRIVATE)
-    val texteASauvegarder = taches.joinToString(";;") { "${it.titre}~${if (it.terminee) 1 else 0}~${it.rappel}~${it.rappelMillis}" }
+    val texteASauvegarder = taches.joinToString(";;") {
+        "${it.titre}~${if (it.terminee) 1 else 0}~${it.rappel}~${it.rappelMillis}~${it.priorite.name}"
+    }
     prefs.edit().putString("taches", texteASauvegarder).apply()
 }
 
@@ -113,8 +123,11 @@ fun chargerTaches(context: Context): List<Tache> {
     if (texte.isBlank()) return emptyList()
     return texte.split(";;").mapNotNull { ligne ->
         val parties = ligne.split("~")
+        val priorite = if (parties.size >= 5) {
+            try { Priorite.valueOf(parties[4]) } catch (e: Exception) { Priorite.MOYENNE }
+        } else Priorite.MOYENNE
         when {
-            parties.size >= 4 -> Tache(parties[0], parties[1] == "1", parties[2], parties[3].toLongOrNull() ?: 0L)
+            parties.size >= 4 -> Tache(parties[0], parties[1] == "1", parties[2], parties[3].toLongOrNull() ?: 0L, priorite)
             parties.size == 3 -> Tache(parties[0], parties[1] == "1", parties[2])
             parties.size == 2 -> Tache(parties[0], parties[1] == "1")
             else -> null
@@ -187,6 +200,8 @@ fun EcranTaches() {
     var tacheASupprimer by remember { mutableStateOf<Tache?>(null) }
     var rappelChoisiTexte by remember { mutableStateOf("") }
     var rappelChoisiMillis by remember { mutableStateOf(0L) }
+    var prioriteChoisie by remember { mutableStateOf(Priorite.MOYENNE) }
+    var menuPrioriteOuvert by remember { mutableStateOf(false) }
 
     fun ouvrirSelecteurDateHeure() {
         val cal = Calendar.getInstance()
@@ -229,26 +244,53 @@ fun EcranTaches() {
 
         Row(verticalAlignment = Alignment.CenterVertically) {
             OutlinedButton(onClick = { ouvrirSelecteurDateHeure() }, shape = RoundedCornerShape(12.dp)) {
-                Text(if (rappelChoisiTexte.isBlank()) "Choisir date/heure" else rappelChoisiTexte)
+                Text(if (rappelChoisiTexte.isBlank()) "Date/heure" else rappelChoisiTexte)
             }
             Spacer(modifier = Modifier.width(8.dp))
-            Button(
-                onClick = {
-                    if (texteNouvelleTache.isNotBlank()) {
-                        val nouvelle = Tache(texteNouvelleTache, rappel = rappelChoisiTexte, rappelMillis = rappelChoisiMillis)
-                        taches = taches + nouvelle
-                        sauvegarderTaches(context, taches)
-                        programmerAlarme(context, nouvelle)
-                        texteNouvelleTache = ""
-                        rappelChoisiTexte = ""
-                        rappelChoisiMillis = 0L
+            Box {
+                OutlinedButton(
+                    onClick = { menuPrioriteOuvert = true },
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = prioriteChoisie.couleur)
+                ) {
+                    Text(prioriteChoisie.libelle)
+                }
+                DropdownMenu(expanded = menuPrioriteOuvert, onDismissRequest = { menuPrioriteOuvert = false }) {
+                    Priorite.values().forEach { p ->
+                        DropdownMenuItem(
+                            text = { Text(p.libelle, color = p.couleur) },
+                            onClick = { prioriteChoisie = p; menuPrioriteOuvert = false }
+                        )
                     }
-                },
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = VioletNexora)
-            ) {
-                Text("Ajouter")
+                }
             }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Button(
+            onClick = {
+                if (texteNouvelleTache.isNotBlank()) {
+                    val nouvelle = Tache(
+                        texteNouvelleTache,
+                        rappel = rappelChoisiTexte,
+                        rappelMillis = rappelChoisiMillis,
+                        priorite = prioriteChoisie
+                    )
+                    taches = taches + nouvelle
+                    sauvegarderTaches(context, taches)
+                    programmerAlarme(context, nouvelle)
+                    texteNouvelleTache = ""
+                    rappelChoisiTexte = ""
+                    rappelChoisiMillis = 0L
+                    prioriteChoisie = Priorite.MOYENNE
+                }
+            },
+            shape = RoundedCornerShape(12.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = VioletNexora),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Ajouter la tâche")
         }
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -274,6 +316,13 @@ fun EcranTaches() {
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
+                        Box(
+                            modifier = Modifier
+                                .padding(end = 8.dp)
+                                .size(10.dp)
+                        ) {
+                            Surface(color = tache.priorite.couleur, shape = RoundedCornerShape(50), modifier = Modifier.fillMaxSize()) {}
+                        }
                         Checkbox(
                             checked = tache.terminee,
                             onCheckedChange = { coche ->
