@@ -1,11 +1,18 @@
 package com.nexora.app
 
+import android.Manifest
+import android.app.AlarmManager
 import android.app.DatePickerDialog
+import android.app.PendingIntent
 import android.app.TimePickerDialog
 import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -28,17 +35,37 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import java.util.Calendar
 
-data class Tache(val titre: String, val terminee: Boolean = false, val rappel: String = "")
+data class Tache(
+    val titre: String,
+    val terminee: Boolean = false,
+    val rappel: String = "",
+    val rappelMillis: Long = 0L
+)
 
 private val VioletNexora = Color(0xFF7B5CFF)
 private val OrNexora = Color(0xFFF6B93B)
 private val FondClair = Color(0xFFF9F8FF)
 
 class MainActivity : ComponentActivity() {
+
+    private val demandePermission = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                != PackageManager.PERMISSION_GRANTED
+            ) {
+                demandePermission.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
+
         setContent {
             val schemaCouleurs = lightColorScheme(
                 primary = VioletNexora,
@@ -55,9 +82,28 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+fun programmerAlarme(context: Context, tache: Tache) {
+    if (tache.rappelMillis <= 0L) return
+    val gestionnaireAlarme = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+    val intention = Intent(context, RappelReceiver::class.java).apply {
+        putExtra("titre", tache.titre)
+    }
+    val pendingIntent = PendingIntent.getBroadcast(
+        context,
+        tache.titre.hashCode(),
+        intention,
+        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+    )
+    gestionnaireAlarme.setExactAndAllowWhileIdle(
+        AlarmManager.RTC_WAKEUP,
+        tache.rappelMillis,
+        pendingIntent
+    )
+}
+
 fun sauvegarderTaches(context: Context, taches: List<Tache>) {
     val prefs = context.getSharedPreferences("nexora_prefs", Context.MODE_PRIVATE)
-    val texteASauvegarder = taches.joinToString(";;") { "${it.titre}~${if (it.terminee) 1 else 0}~${it.rappel}" }
+    val texteASauvegarder = taches.joinToString(";;") { "${it.titre}~${if (it.terminee) 1 else 0}~${it.rappel}~${it.rappelMillis}" }
     prefs.edit().putString("taches", texteASauvegarder).apply()
 }
 
@@ -67,9 +113,10 @@ fun chargerTaches(context: Context): List<Tache> {
     if (texte.isBlank()) return emptyList()
     return texte.split(";;").mapNotNull { ligne ->
         val parties = ligne.split("~")
-        when (parties.size) {
-            3 -> Tache(titre = parties[0], terminee = parties[1] == "1", rappel = parties[2])
-            2 -> Tache(titre = parties[0], terminee = parties[1] == "1")
+        when {
+            parties.size >= 4 -> Tache(parties[0], parties[1] == "1", parties[2], parties[3].toLongOrNull() ?: 0L)
+            parties.size == 3 -> Tache(parties[0], parties[1] == "1", parties[2])
+            parties.size == 2 -> Tache(parties[0], parties[1] == "1")
             else -> null
         }
     }
@@ -78,7 +125,6 @@ fun chargerTaches(context: Context): List<Tache> {
 @Composable
 fun EcranPrincipal() {
     var ongletSelectionne by remember { mutableStateOf(0) }
-
     val onglets = listOf(
         Triple("Accueil", Icons.Filled.Home, 0),
         Triple("Tâches", Icons.Filled.CheckCircle, 1),
@@ -139,27 +185,30 @@ fun EcranTaches() {
     var taches by remember { mutableStateOf(chargerTaches(context)) }
     var texteNouvelleTache by remember { mutableStateOf("") }
     var tacheASupprimer by remember { mutableStateOf<Tache?>(null) }
-    var rappelChoisi by remember { mutableStateOf("") }
-
-    val calendrier = Calendar.getInstance()
+    var rappelChoisiTexte by remember { mutableStateOf("") }
+    var rappelChoisiMillis by remember { mutableStateOf(0L) }
 
     fun ouvrirSelecteurDateHeure() {
+        val cal = Calendar.getInstance()
         DatePickerDialog(
             context,
             { _, annee, mois, jour ->
                 TimePickerDialog(
                     context,
                     { _, heure, minute ->
-                        rappelChoisi = "%02d/%02d/%d à %02dh%02d".format(jour, mois + 1, annee, heure, minute)
+                        val calChoisi = Calendar.getInstance()
+                        calChoisi.set(annee, mois, jour, heure, minute, 0)
+                        rappelChoisiMillis = calChoisi.timeInMillis
+                        rappelChoisiTexte = "%02d/%02d/%d à %02dh%02d".format(jour, mois + 1, annee, heure, minute)
                     },
-                    calendrier.get(Calendar.HOUR_OF_DAY),
-                    calendrier.get(Calendar.MINUTE),
+                    cal.get(Calendar.HOUR_OF_DAY),
+                    cal.get(Calendar.MINUTE),
                     true
                 ).show()
             },
-            calendrier.get(Calendar.YEAR),
-            calendrier.get(Calendar.MONTH),
-            calendrier.get(Calendar.DAY_OF_MONTH)
+            cal.get(Calendar.YEAR),
+            cal.get(Calendar.MONTH),
+            cal.get(Calendar.DAY_OF_MONTH)
         ).show()
     }
 
@@ -179,20 +228,20 @@ fun EcranTaches() {
         Spacer(modifier = Modifier.height(8.dp))
 
         Row(verticalAlignment = Alignment.CenterVertically) {
-            OutlinedButton(
-                onClick = { ouvrirSelecteurDateHeure() },
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Text(if (rappelChoisi.isBlank()) "Choisir date/heure" else rappelChoisi)
+            OutlinedButton(onClick = { ouvrirSelecteurDateHeure() }, shape = RoundedCornerShape(12.dp)) {
+                Text(if (rappelChoisiTexte.isBlank()) "Choisir date/heure" else rappelChoisiTexte)
             }
             Spacer(modifier = Modifier.width(8.dp))
             Button(
                 onClick = {
                     if (texteNouvelleTache.isNotBlank()) {
-                        taches = taches + Tache(texteNouvelleTache, rappel = rappelChoisi)
+                        val nouvelle = Tache(texteNouvelleTache, rappel = rappelChoisiTexte, rappelMillis = rappelChoisiMillis)
+                        taches = taches + nouvelle
                         sauvegarderTaches(context, taches)
+                        programmerAlarme(context, nouvelle)
                         texteNouvelleTache = ""
-                        rappelChoisi = ""
+                        rappelChoisiTexte = ""
+                        rappelChoisiMillis = 0L
                     }
                 },
                 shape = RoundedCornerShape(12.dp),
@@ -204,7 +253,6 @@ fun EcranTaches() {
 
         Spacer(modifier = Modifier.height(8.dp))
         Text(text = "Astuce : appui long sur une tâche pour la supprimer", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
-
         Spacer(modifier = Modifier.height(12.dp))
 
         LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp)) {
