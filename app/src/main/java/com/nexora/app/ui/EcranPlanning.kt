@@ -8,7 +8,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.nexora.app.model.EvenementPlanning
+import com.nexora.app.model.BlocHoraire
 
 @Composable
 fun EcranPlanning() {
@@ -17,9 +17,10 @@ fun EcranPlanning() {
         mutableStateOf(false)
     }
 
-    val planning = remember {
-        mutableStateListOf<EvenementPlanning>()
+    val emploiDuTemps = remember {
+        mutableStateListOf<BlocHoraire>()
     }
+
 
     Column(
         modifier = Modifier
@@ -33,25 +34,31 @@ fun EcranPlanning() {
         ) {
 
             Text(
-                text = "Mon Planning",
+                text = "Mon Emploi du Temps",
                 style = MaterialTheme.typography.headlineMedium
             )
 
             Button(
-                onClick = { ouvrirAjout = true },
+                onClick = {
+                    ouvrirAjout = true
+                },
                 shape = RoundedCornerShape(12.dp)
             ) {
                 Text("+ Ajouter")
             }
         }
 
-        Spacer(modifier = Modifier.height(20.dp))
+
+        Spacer(
+            modifier = Modifier.height(20.dp)
+        )
+
 
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
 
-            items(planning) { evenement ->
+            items(emploiDuTemps) { bloc ->
 
                 Card(
                     modifier = Modifier.fillMaxWidth(),
@@ -63,12 +70,16 @@ fun EcranPlanning() {
                     ) {
 
                         Text(
-                            evenement.titre,
+                            text = bloc.jour,
                             style = MaterialTheme.typography.titleMedium
                         )
 
                         Text(
-                            "${evenement.jour} • ${evenement.heureDebut} - ${evenement.heureFin}"
+                            text = "${bloc.heureDebut} - ${bloc.heureFin}"
+                        )
+
+                        Text(
+                            text = bloc.activite
                         )
                     }
                 }
@@ -79,11 +90,13 @@ fun EcranPlanning() {
 
     if (ouvrirAjout) {
 
-        AjouterEvenementDialog(
-            onFermer = { ouvrirAjout = false },
+        AjouterBlocHoraireDialog(
+            onFermer = {
+                ouvrirAjout = false
+            },
 
             onAjouter = {
-                planning.add(it)
+                emploiDuTemps.add(it)
                 ouvrirAjout = false
             }
         )
@@ -91,16 +104,17 @@ fun EcranPlanning() {
 }
 
 
+
 @Composable
-fun AjouterEvenementDialog(
+fun AjouterBlocHoraireDialog(
     onFermer: () -> Unit,
-    onAjouter: (EvenementPlanning) -> Unit
+    onAjouter: (BlocHoraire) -> Unit
 ) {
 
-    var titre by remember { mutableStateOf("") }
     var jour by remember { mutableStateOf("") }
     var debut by remember { mutableStateOf("") }
     var fin by remember { mutableStateOf("") }
+    var activite by remember { mutableStateOf("") }
 
 
     AlertDialog(
@@ -108,18 +122,12 @@ fun AjouterEvenementDialog(
         onDismissRequest = onFermer,
 
         title = {
-            Text("Nouvel événement")
+            Text("Ajouter au planning")
         },
 
         text = {
 
             Column {
-
-                OutlinedTextField(
-                    value = titre,
-                    onValueChange = { titre = it },
-                    label = { Text("Titre") }
-                )
 
                 OutlinedTextField(
                     value = jour,
@@ -130,38 +138,47 @@ fun AjouterEvenementDialog(
                 OutlinedTextField(
                     value = debut,
                     onValueChange = { debut = it },
-                    label = { Text("Début") }
+                    label = { Text("Heure début") }
                 )
 
                 OutlinedTextField(
                     value = fin,
                     onValueChange = { fin = it },
-                    label = { Text("Fin") }
+                    label = { Text("Heure fin") }
+                )
+
+                OutlinedTextField(
+                    value = activite,
+                    onValueChange = { activite = it },
+                    label = { Text("Activité") }
                 )
             }
         },
+
 
         confirmButton = {
 
             TextButton(
                 onClick = {
 
-                    if (titre.isNotBlank()) {
+                    if (jour.isNotBlank() && activite.isNotBlank()) {
 
                         onAjouter(
-                            EvenementPlanning(
-                                titre,
+                            BlocHoraire(
                                 jour,
                                 debut,
-                                fin
+                                fin,
+                                activite
                             )
                         )
                     }
+
                 }
             ) {
                 Text("Ajouter")
             }
         },
+
 
         dismissButton = {
 
