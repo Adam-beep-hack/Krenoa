@@ -38,7 +38,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
-import java.util.Calendar
 
 enum class Priorite(val libelle: String, val couleur: Color) {
     URGENTE("Urgente", Color(0xFFE53935)),
