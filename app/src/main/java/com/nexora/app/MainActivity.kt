@@ -482,5 +482,5 @@ fun EcranTaches() {
         )
     }
     }
-r
+}
     
