@@ -49,19 +49,17 @@ enum class Frequence(val libelle: String) {
     UNIQUE("Ne pas répéter"),
     QUOTIDIEN("Tous les jours"),
     HEBDOMADAIRE("Toutes les semaines"),
-    PERSONNALISE("Jours personnalisés")
+    PERSONNALISE("Jours précis")
 }
 
-data class JourSemaine(val libelle: String, val valeurCalendar: Int)
-
-val JOURS_SEMAINE = listOf(
-    JourSemaine("Lun", Calendar.MONDAY),
-    JourSemaine("Mar", Calendar.TUESDAY),
-    JourSemaine("Mer", Calendar.WEDNESDAY),
-    JourSemaine("Jeu", Calendar.THURSDAY),
-    JourSemaine("Ven", Calendar.FRIDAY),
-    JourSemaine("Sam", Calendar.SATURDAY),
-    JourSemaine("Dim", Calendar.SUNDAY)
+val NomsJours = listOf(
+    Calendar.SUNDAY to "Dim",
+    Calendar.MONDAY to "Lun",
+    Calendar.TUESDAY to "Mar",
+    Calendar.WEDNESDAY to "Mer",
+    Calendar.THURSDAY to "Jeu",
+    Calendar.FRIDAY to "Ven",
+    Calendar.SATURDAY to "Sam"
 )
 
 data class Tache(
@@ -71,7 +69,7 @@ data class Tache(
     val rappelMillis: Long = 0L,
     val priorite: Priorite = Priorite.MOYENNE,
     val frequence: Frequence = Frequence.UNIQUE,
-    val joursSelectionnes: Set<Int> = emptySet()
+    val joursRepetition: Set<Int> = emptySet()
 )
 
 private val VioletNexora = Color(0xFF7B5CFF)
@@ -111,62 +109,46 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-fun prochainJour(heure: Int, minute: Int, jourCalendar: Int): Calendar {
-    val cal = Calendar.getInstance()
-    cal.set(Calendar.HOUR_OF_DAY, heure)
-    cal.set(Calendar.MINUTE, minute)
-    cal.set(Calendar.SECOND, 0)
-    val maintenant = Calendar.getInstance()
-    while (cal.get(Calendar.DAY_OF_WEEK) != jourCalendar || cal.before(maintenant)) {
-        cal.add(Calendar.DAY_OF_YEAR, 1)
-    }
-    return cal
-}
-
 fun programmerAlarme(context: Context, tache: Tache) {
+    if (tache.rappelMillis <= 0L) return
     val gestionnaireAlarme = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
-    if (tache.frequence == Frequence.PERSONNALISE) {
-        if (tache.joursSelectionnes.isEmpty() || tache.rappelMillis <= 0L) return
-        val calRef = Calendar.getInstance().apply { timeInMillis = tache.rappelMillis }
-        val heure = calRef.get(Calendar.HOUR_OF_DAY)
-        val minute = calRef.get(Calendar.MINUTE)
-        tache.joursSelectionnes.forEach { jour ->
-            val calCible = prochainJour(heure, minute, jour)
-            val intention = Intent(context, RappelReceiver::class.java).apply {
-                putExtra("titre", tache.titre)
-                putExtra("frequence", tache.frequence.name)
-                putExtra("jourDeclenche", jour)
+    var millisCible = tache.rappelMillis
+
+    if (tache.frequence == Frequence.PERSONNALISE && tache.joursRepetition.isNotEmpty()) {
+        val cal = Calendar.getInstance()
+        cal.timeInMillis = tache.rappelMillis
+        if (!tache.joursRepetition.contains(cal.get(Calendar.DAY_OF_WEEK))) {
+            for (i in 1..7) {
+                cal.add(Calendar.DAY_OF_YEAR, 1)
+                if (tache.joursRepetition.contains(cal.get(Calendar.DAY_OF_WEEK))) break
             }
-            val pendingIntent = PendingIntent.getBroadcast(
-                context,
-                tache.titre.hashCode() + jour,
-                intention,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
-            gestionnaireAlarme.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calCible.timeInMillis, pendingIntent)
+            millisCible = cal.timeInMillis
         }
-    } else {
-        if (tache.rappelMillis <= 0L) return
-        val intention = Intent(context, RappelReceiver::class.java).apply {
-            putExtra("titre", tache.titre)
-            putExtra("frequence", tache.frequence.name)
-            putExtra("jourDeclenche", -1)
-        }
-        val pendingIntent = PendingIntent.getBroadcast(
-            context,
-            tache.titre.hashCode(),
-            intention,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
-        gestionnaireAlarme.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, tache.rappelMillis, pendingIntent)
     }
+
+    val intention = Intent(context, RappelReceiver::class.java).apply {
+        putExtra("titre", tache.titre)
+        putExtra("frequence", tache.frequence.name)
+        putExtra("jours", tache.joursRepetition.joinToString(","))
+    }
+    val pendingIntent = PendingIntent.getBroadcast(
+        context,
+        tache.titre.hashCode(),
+        intention,
+        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+    )
+    gestionnaireAlarme.setExactAndAllowWhileIdle(
+        AlarmManager.RTC_WAKEUP,
+        millisCible,
+        pendingIntent
+    )
 }
 
 fun sauvegarderTaches(context: Context, taches: List<Tache>) {
     val prefs = context.getSharedPreferences("nexora_prefs", Context.MODE_PRIVATE)
     val texteASauvegarder = taches.joinToString(";;") {
-        "${it.titre}~${if (it.terminee) 1 else 0}~${it.rappel}~${it.rappelMillis}~${it.priorite.name}~${it.frequence.name}~${it.joursSelectionnes.joinToString(",")}"
+        "${it.titre}~${if (it.terminee) 1 else 0}~${it.rappel}~${it.rappelMillis}~${it.priorite.name}~${it.frequence.name}~${it.joursRepetition.joinToString(",")}"
     }
     prefs.edit().putString("taches", texteASauvegarder).apply()
 }
@@ -264,7 +246,7 @@ fun FormulaireTache(
     var rappelMillis by remember { mutableStateOf(tacheExistante?.rappelMillis ?: 0L) }
     var priorite by remember { mutableStateOf(tacheExistante?.priorite ?: Priorite.MOYENNE) }
     var frequence by remember { mutableStateOf(tacheExistante?.frequence ?: Frequence.UNIQUE) }
-    var joursSelectionnes by remember { mutableStateOf(tacheExistante?.joursSelectionnes ?: emptySet()) }
+    var joursChoisis by remember { mutableStateOf(tacheExistante?.joursRepetition ?: emptySet()) }
     var menuPrioriteOuvert by remember { mutableStateOf(false) }
     var menuFrequenceOuvert by remember { mutableStateOf(false) }
 
@@ -344,19 +326,14 @@ fun FormulaireTache(
                     Spacer(modifier = Modifier.height(8.dp))
                     Text("Choisir les jours :", style = MaterialTheme.typography.bodySmall)
                     Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                        JOURS_SEMAINE.forEach { jourSemaine ->
-                            val selectionne = joursSelectionnes.contains(jourSemaine.valeurCalendar)
+                        NomsJours.forEach { (valeurJour, nomJour) ->
+                            val selectionne = joursChoisis.contains(valeurJour)
                             FilterChip(
                                 selected = selectionne,
                                 onClick = {
-                                    joursSelectionnes = if (selectionne) {
-                                        joursSelectionnes - jourSemaine.valeurCalendar
-                                    } else {
-                                        joursSelectionnes + jourSemaine.valeurCalendar
-                                    }
+                                    joursChoisis = if (selectionne) joursChoisis - valeurJour else joursChoisis + valeurJour
                                 },
-                                label = { Text(jourSemaine.libelle) },
-                                colors = FilterChipDefaults.filterChipColors(selectedContainerColor = VioletNexora.copy(alpha = 0.2f))
+                                label = { Text(nomJour) }
                             )
                         }
                     }
@@ -366,7 +343,7 @@ fun FormulaireTache(
         confirmButton = {
             TextButton(onClick = {
                 if (texteTitre.isNotBlank()) {
-                    onValider(texteTitre, rappelTexte, rappelMillis, priorite, frequence, joursSelectionnes)
+                    onValider(texteTitre, rappelTexte, rappelMillis, priorite, frequence, joursChoisis)
                 }
             }) { Text("Enregistrer") }
         },
@@ -440,12 +417,12 @@ fun EcranTaches() {
                         )
                         Column {
                             Text(text = tache.titre, textDecoration = if (tache.terminee) TextDecoration.LineThrough else null)
-                            val descriptionFrequence = if (tache.frequence == Frequence.PERSONNALISE) {
-                                JOURS_SEMAINE.filter { tache.joursSelectionnes.contains(it.valeurCalendar) }.joinToString(",") { it.libelle }
-                            } else if (tache.frequence != Frequence.UNIQUE) tache.frequence.libelle else null
+                            val joursTexte = if (tache.frequence == Frequence.PERSONNALISE && tache.joursRepetition.isNotEmpty()) {
+                                NomsJours.filter { tache.joursRepetition.contains(it.first) }.joinToString(",") { it.second }
+                            } else null
                             val details = listOfNotNull(
                                 tache.rappel.takeIf { it.isNotBlank() },
-                                descriptionFrequence
+                                joursTexte ?: tache.frequence.libelle.takeIf { tache.frequence != Frequence.UNIQUE }
                             ).joinToString(" · ")
                             if (details.isNotBlank()) {
                                 Text(text = details, style = MaterialTheme.typography.bodySmall, color = VioletNexora)
@@ -453,4 +430,42 @@ fun EcranTaches() {
                         }
                     }
                 }
- 
+            }
+        }
+    }
+
+    if (ajoutOuvert) {
+        FormulaireTache(
+            titre = "Nouvelle tâche",
+            onFermer = { ajoutOuvert = false },
+            onValider = { titreV, rappelV, millisV, prioriteV, frequenceV, joursV ->
+                val nouvelle = Tache(titreV, rappel = rappelV, rappelMillis = millisV, priorite = prioriteV, frequence = frequenceV, joursRepetition = joursV)
+                taches = taches + nouvelle
+                sauvegarderTaches(context, taches)
+                programmerAlarme(context, nouvelle)
+                ajoutOuvert = false
+            }
+        )
+    }
+
+    tacheAModifier?.let { tache ->
+        FormulaireTache(
+            titre = "Modifier la tâche",
+            tacheExistante = tache,
+            onFermer = { tacheAModifier = null },
+            onValider = { titreV, rappelV, millisV, prioriteV, frequenceV, joursV ->
+                taches = taches.map {
+                    if (it === tache) it.copy(titre = titreV, rappel = rappelV, rappelMillis = millisV, priorite = prioriteV, frequence = frequenceV, joursRepetition = joursV) else it
+                }
+                sauvegarderTaches(context, taches)
+                val tacheMaj = taches.first { it.titre == titreV }
+                programmerAlarme(context, tacheMaj)
+                tacheAModifier = null
+            }
+        )
+    }
+
+    tacheASupprimer?.let { tache ->
+        AlertDialog(
+            onDismissRequest = { tacheASupprimer = null },
+            ti
