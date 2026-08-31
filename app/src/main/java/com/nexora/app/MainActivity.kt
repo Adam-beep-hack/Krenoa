@@ -4,6 +4,9 @@ import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -61,11 +64,13 @@ fun chargerTaches(context: Context): List<Tache> {
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun EcranTaches() {
     val context = LocalContext.current
     var taches by remember { mutableStateOf(chargerTaches(context)) }
     var texteNouvelleTache by remember { mutableStateOf("") }
+    var tacheASupprimer by remember { mutableStateOf<Tache?>(null) }
 
     Column(modifier = Modifier.fillMaxSize().padding(20.dp)) {
         Text(
@@ -105,7 +110,14 @@ fun EcranTaches() {
             }
         }
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = "Astuce : appui long sur une tâche pour la supprimer",
+            style = MaterialTheme.typography.bodySmall,
+            color = Color.Gray
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
 
         LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp)) {
             items(taches) { tache ->
@@ -113,7 +125,14 @@ fun EcranTaches() {
                     shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(containerColor = Color.White),
                     elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .combinedClickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null,
+                            onClick = {},
+                            onLongClick = { tacheASupprimer = tache }
+                        )
                 ) {
                     Row(
                         modifier = Modifier
@@ -139,5 +158,27 @@ fun EcranTaches() {
                 }
             }
         }
+    }
+
+    tacheASupprimer?.let { tache ->
+        AlertDialog(
+            onDismissRequest = { tacheASupprimer = null },
+            title = { Text("Supprimer la tâche ?") },
+            text = { Text("« ${tache.titre} » sera définitivement supprimée.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    taches = taches.filter { it !== tache }
+                    sauvegarderTaches(context, taches)
+                    tacheASupprimer = null
+                }) {
+                    Text("Supprimer", color = Color.Red)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { tacheASupprimer = null }) {
+                    Text("Annuler")
+                }
+            }
+        )
     }
 }
