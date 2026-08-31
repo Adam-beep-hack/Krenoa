@@ -213,7 +213,7 @@ fun EcranPrincipal() {
             when (ongletSelectionne) {
                 0 -> EcranPlaceholder("Accueil")
                 1 -> EcranTaches()
-                2 -> EcranPlaceholder("Planning")
+                2 -> EcranPlanning()
                 3 -> EcranPlaceholder("Rappels")
                 4 -> EcranPlaceholder("Profil")
             }
