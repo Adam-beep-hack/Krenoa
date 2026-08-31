@@ -11,6 +11,12 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -39,7 +45,7 @@ class MainActivity : ComponentActivity() {
             )
             MaterialTheme(colorScheme = schemaCouleurs) {
                 Surface(modifier = Modifier.fillMaxSize(), color = FondClair) {
-                    EcranTaches()
+                    EcranPrincipal()
                 }
             }
         }
@@ -61,6 +67,67 @@ fun chargerTaches(context: Context): List<Tache> {
         if (parties.size == 2) {
             Tache(titre = parties[0], terminee = parties[1] == "1")
         } else null
+    }
+}
+
+@Composable
+fun EcranPrincipal() {
+    var ongletSelectionne by remember { mutableStateOf(0) }
+
+    val onglets = listOf(
+        Triple("Accueil", Icons.Filled.Home, 0),
+        Triple("Tâches", Icons.Filled.CheckCircle, 1),
+        Triple("Planning", Icons.Filled.DateRange, 2),
+        Triple("Rappels", Icons.Filled.Notifications, 3),
+        Triple("Profil", Icons.Filled.Person, 4)
+    )
+
+    Scaffold(
+        containerColor = FondClair,
+        bottomBar = {
+            NavigationBar(containerColor = Color.White) {
+                onglets.forEach { (label, icone, index) ->
+                    NavigationBarItem(
+                        selected = ongletSelectionne == index,
+                        onClick = { ongletSelectionne = index },
+                        icon = { Icon(icone, contentDescription = label) },
+                        label = { Text(label) },
+                        colors = NavigationBarItemDefaults.colors(
+                            selectedIconColor = VioletNexora,
+                            selectedTextColor = VioletNexora,
+                            indicatorColor = VioletNexora.copy(alpha = 0.15f)
+                        )
+                    )
+                }
+            }
+        }
+    ) { paddingInterieur ->
+        Box(modifier = Modifier.fillMaxSize().padding(paddingInterieur)) {
+            when (ongletSelectionne) {
+                0 -> EcranPlaceholder("Accueil")
+                1 -> EcranTaches()
+                2 -> EcranPlaceholder("Planning")
+                3 -> EcranPlaceholder("Rappels")
+                4 -> EcranPlaceholder("Profil")
+            }
+        }
+    }
+}
+
+@Composable
+fun EcranPlaceholder(nom: String) {
+    Column(
+        modifier = Modifier.fillMaxSize().padding(20.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(
+            text = nom,
+            style = MaterialTheme.typography.headlineMedium,
+            fontWeight = FontWeight.Bold
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(text = "Bientôt disponible", color = Color.Gray)
     }
 }
 
