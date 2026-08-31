@@ -102,22 +102,4 @@ fun EcranTaches() {
             }
         }
     }
-}                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Checkbox(
-                        checked = tache.terminee,
-                        onCheckedChange = { coche ->
-                            taches = taches.map {
-                                if (it === tache) it.copy(terminee = coche) else it
-                            }
-                        }
-                    )
-                    Text(
-                        text = tache.titre,
-                        textDecoration = if (tache.terminee) TextDecoration.LineThrough else null
-                    )
-                }
-            }
-        }
-    }
 }
