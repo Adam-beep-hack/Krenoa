@@ -1,5 +1,9 @@
 package com.nexora.app.ui
 
+import android.content.Context
+import androidx.compose.ui.platform.LocalContext
+import com.nexora.app.data.chargerPlanning
+import com.nexora.app.data.sauvegarderPlanning
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -17,9 +21,13 @@ fun EcranPlanning() {
         mutableStateOf(false)
     }
 
-    val emploiDuTemps = remember {
-        mutableStateListOf<BlocHoraire>()
+    val context = LocalContext.current
+
+val emploiDuTemps = remember {
+    mutableStateListOf<BlocHoraire>().apply {
+        addAll(chargerPlanning(context))
     }
+}
 
 
     Column(
@@ -96,8 +104,15 @@ fun EcranPlanning() {
             },
 
             onAjouter = {
-                emploiDuTemps.add(it)
-                ouvrirAjout = false
+
+    emploiDuTemps.add(it)
+
+    sauvegarderPlanning(
+        context,
+        emploiDuTemps
+    )
+
+    ouvrirAjout = false
             }
         )
     }
