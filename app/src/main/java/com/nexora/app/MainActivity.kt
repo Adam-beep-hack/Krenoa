@@ -230,7 +230,7 @@ fun EcranPrincipal() {
             when (ongletSelectionne) {
                 0 -> EcranPlaceholder("Accueil")
                 1 -> EcranTaches()
-                2 -> EcranPlaceholder("Planning")
+                2 -> EcranPlanning(taches = chargerTaches(LocalContext.current))
                 3 -> EcranPlaceholder("Rappels")
                 4 -> EcranPlaceholder("Profil")
             }
@@ -248,6 +248,74 @@ fun EcranPlaceholder(nom: String) {
         Text(text = nom, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
         Spacer(modifier = Modifier.height(8.dp))
         Text(text = "Bientôt disponible", color = Color.Gray)
+    }
+}
+
+@Composable
+fun EcranPlanning(taches: List<Tache>) {
+    var joursDecalage by remember { mutableStateOf(0) }
+    val calAffiche = Calendar.getInstance().apply { add(Calendar.DAY_OF_YEAR, joursDecalage) }
+    val jourSemaineAffiche = calAffiche.get(Calendar.DAY_OF_WEEK)
+    val libelleJour = JOURS_SEMAINE.find { it.valeurCalendar == jourSemaineAffiche }?.libelle ?: ""
+    val dateTexte = "%s %02d/%02d/%d".format(libelleJour, calAffiche.get(Calendar.DAY_OF_MONTH), calAffiche.get(Calendar.MONTH) + 1, calAffiche.get(Calendar.YEAR))
+
+    val tachesDuJour = taches.filter { tache ->
+        if (tache.frequence == Frequence.PERSONNALISE) {
+            tache.joursSelectionnes.contains(jourSemaineAffiche)
+        } else if (tache.frequence == Frequence.QUOTIDIEN) {
+            true
+        } else if (tache.rappelMillis > 0L) {
+            val calTache = Calendar.getInstance().apply { timeInMillis = tache.rappelMillis }
+            calTache.get(Calendar.DAY_OF_YEAR) == calAffiche.get(Calendar.DAY_OF_YEAR) &&
+                calTache.get(Calendar.YEAR) == calAffiche.get(Calendar.YEAR)
+        } else false
+    }
+
+    Column(modifier = Modifier.fillMaxSize().padding(20.dp)) {
+        Text(text = "Planning", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            TextButton(onClick = { joursDecalage -= 1 }) { Text("◀ Précédent") }
+            Text(dateTexte, fontWeight = FontWeight.Bold)
+            TextButton(onClick = { joursDecalage += 1 }) { Text("Suivant ▶") }
+        }
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        if (tachesDuJour.isEmpty()) {
+            Text("Aucune tâche ce jour-là", color = Color.Gray)
+        } else {
+            LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                items(tachesDuJour) { tache ->
+                    Card(
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color.White),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Box(modifier = Modifier.padding(end = 8.dp).size(10.dp)) {
+                                Surface(color = tache.priorite.couleur, shape = RoundedCornerShape(50), modifier = Modifier.fillMaxSize()) {}
+                            }
+                            Column {
+                                Text(tache.titre, fontWeight = FontWeight.Medium)
+                                if (tache.rappel.isNotBlank()) {
+                                    Text(tache.rappel, style = MaterialTheme.typography.bodySmall, color = VioletNexora)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -393,64 +461,4 @@ fun EcranTaches() {
         ) {
             Column {
                 Text(text = "NEXORA", style = MaterialTheme.typography.labelLarge, color = VioletNexora, fontWeight = FontWeight.Bold)
-                Text(text = "Mes tâches", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
-            }
-            Button(
-                onClick = { ajoutOuvert = true },
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = VioletNexora)
-            ) {
-                Text("+ Ajouter")
-            }
-        }
-
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(text = "Astuce : appui simple pour modifier, appui long pour supprimer", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
-        Spacer(modifier = Modifier.height(12.dp))
-
-        LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            items(taches) { tache ->
-                Card(
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .combinedClickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = null,
-                            onClick = { tacheAModifier = tache },
-                            onLongClick = { tacheASupprimer = tache }
-                        )
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Box(modifier = Modifier.padding(end = 8.dp).size(10.dp)) {
-                            Surface(color = tache.priorite.couleur, shape = RoundedCornerShape(50), modifier = Modifier.fillMaxSize()) {}
-                        }
-                        Checkbox(
-                            checked = tache.terminee,
-                            onCheckedChange = { coche ->
-                                taches = taches.map { if (it === tache) it.copy(terminee = coche) else it }
-                                sauvegarderTaches(context, taches)
-                            },
-                            colors = CheckboxDefaults.colors(checkedColor = VioletNexora)
-                        )
-                        Column {
-                            Text(text = tache.titre, textDecoration = if (tache.terminee) TextDecoration.LineThrough else null)
-                            val descriptionFrequence = if (tache.frequence == Frequence.PERSONNALISE) {
-                                JOURS_SEMAINE.filter { tache.joursSelectionnes.contains(it.valeurCalendar) }.joinToString(",") { it.libelle }
-                            } else if (tache.frequence != Frequence.UNIQUE) tache.frequence.libelle else null
-                            val details = listOfNotNull(
-                                tache.rappel.takeIf { it.isNotBlank() },
-                                descriptionFrequence
-                            ).joinToString(" · ")
-                            if (details.isNotBlank()) {
-                                Text(text = details, style = MaterialTheme.typography.bodySmall, color = VioletNexora)
-                            }
-                        }
-                    }
-                }
- 
+                Text(text = "Mes tâches", style = 
