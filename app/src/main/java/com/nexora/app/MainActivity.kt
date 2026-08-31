@@ -1,5 +1,7 @@
 package com.nexora.app
 
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
 import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -26,8 +28,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import java.util.Calendar
 
-data class Tache(val titre: String, val terminee: Boolean = false)
+data class Tache(val titre: String, val terminee: Boolean = false, val rappel: String = "")
 
 private val VioletNexora = Color(0xFF7B5CFF)
 private val OrNexora = Color(0xFFF6B93B)
@@ -54,7 +57,7 @@ class MainActivity : ComponentActivity() {
 
 fun sauvegarderTaches(context: Context, taches: List<Tache>) {
     val prefs = context.getSharedPreferences("nexora_prefs", Context.MODE_PRIVATE)
-    val texteASauvegarder = taches.joinToString(";;") { "${it.titre}|${if (it.terminee) 1 else 0}" }
+    val texteASauvegarder = taches.joinToString(";;") { "${it.titre}~${if (it.terminee) 1 else 0}~${it.rappel}" }
     prefs.edit().putString("taches", texteASauvegarder).apply()
 }
 
@@ -63,10 +66,12 @@ fun chargerTaches(context: Context): List<Tache> {
     val texte = prefs.getString("taches", "") ?: ""
     if (texte.isBlank()) return emptyList()
     return texte.split(";;").mapNotNull { ligne ->
-        val parties = ligne.split("|")
-        if (parties.size == 2) {
-            Tache(titre = parties[0], terminee = parties[1] == "1")
-        } else null
+        val parties = ligne.split("~")
+        when (parties.size) {
+            3 -> Tache(titre = parties[0], terminee = parties[1] == "1", rappel = parties[2])
+            2 -> Tache(titre = parties[0], terminee = parties[1] == "1")
+            else -> null
+        }
     }
 }
 
@@ -121,11 +126,7 @@ fun EcranPlaceholder(nom: String) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text(
-            text = nom,
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold
-        )
+        Text(text = nom, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
         Spacer(modifier = Modifier.height(8.dp))
         Text(text = "Bientôt disponible", color = Color.Gray)
     }
@@ -138,36 +139,60 @@ fun EcranTaches() {
     var taches by remember { mutableStateOf(chargerTaches(context)) }
     var texteNouvelleTache by remember { mutableStateOf("") }
     var tacheASupprimer by remember { mutableStateOf<Tache?>(null) }
+    var rappelChoisi by remember { mutableStateOf("") }
+
+    val calendrier = Calendar.getInstance()
+
+    fun ouvrirSelecteurDateHeure() {
+        DatePickerDialog(
+            context,
+            { _, annee, mois, jour ->
+                TimePickerDialog(
+                    context,
+                    { _, heure, minute ->
+                        rappelChoisi = "%02d/%02d/%d à %02dh%02d".format(jour, mois + 1, annee, heure, minute)
+                    },
+                    calendrier.get(Calendar.HOUR_OF_DAY),
+                    calendrier.get(Calendar.MINUTE),
+                    true
+                ).show()
+            },
+            calendrier.get(Calendar.YEAR),
+            calendrier.get(Calendar.MONTH),
+            calendrier.get(Calendar.DAY_OF_MONTH)
+        ).show()
+    }
 
     Column(modifier = Modifier.fillMaxSize().padding(20.dp)) {
-        Text(
-            text = "NEXORA",
-            style = MaterialTheme.typography.labelLarge,
-            color = VioletNexora,
-            fontWeight = FontWeight.Bold
-        )
-        Text(
-            text = "Mes tâches",
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold
-        )
+        Text(text = "NEXORA", style = MaterialTheme.typography.labelLarge, color = VioletNexora, fontWeight = FontWeight.Bold)
+        Text(text = "Mes tâches", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
         Spacer(modifier = Modifier.height(20.dp))
 
+        OutlinedTextField(
+            value = texteNouvelleTache,
+            onValueChange = { texteNouvelleTache = it },
+            label = { Text("Nouvelle tâche") },
+            shape = RoundedCornerShape(12.dp),
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
         Row(verticalAlignment = Alignment.CenterVertically) {
-            OutlinedTextField(
-                value = texteNouvelleTache,
-                onValueChange = { texteNouvelleTache = it },
-                label = { Text("Nouvelle tâche") },
-                shape = RoundedCornerShape(12.dp),
-                modifier = Modifier.weight(1f)
-            )
+            OutlinedButton(
+                onClick = { ouvrirSelecteurDateHeure() },
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Text(if (rappelChoisi.isBlank()) "Choisir date/heure" else rappelChoisi)
+            }
             Spacer(modifier = Modifier.width(8.dp))
             Button(
                 onClick = {
                     if (texteNouvelleTache.isNotBlank()) {
-                        taches = taches + Tache(texteNouvelleTache)
+                        taches = taches + Tache(texteNouvelleTache, rappel = rappelChoisi)
                         sauvegarderTaches(context, taches)
                         texteNouvelleTache = ""
+                        rappelChoisi = ""
                     }
                 },
                 shape = RoundedCornerShape(12.dp),
@@ -178,11 +203,7 @@ fun EcranTaches() {
         }
 
         Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = "Astuce : appui long sur une tâche pour la supprimer",
-            style = MaterialTheme.typography.bodySmall,
-            color = Color.Gray
-        )
+        Text(text = "Astuce : appui long sur une tâche pour la supprimer", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
 
         Spacer(modifier = Modifier.height(12.dp))
 
@@ -202,25 +223,23 @@ fun EcranTaches() {
                         )
                 ) {
                     Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 12.dp, vertical = 8.dp),
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Checkbox(
                             checked = tache.terminee,
                             onCheckedChange = { coche ->
-                                taches = taches.map {
-                                    if (it === tache) it.copy(terminee = coche) else it
-                                }
+                                taches = taches.map { if (it === tache) it.copy(terminee = coche) else it }
                                 sauvegarderTaches(context, taches)
                             },
                             colors = CheckboxDefaults.colors(checkedColor = VioletNexora)
                         )
-                        Text(
-                            text = tache.titre,
-                            textDecoration = if (tache.terminee) TextDecoration.LineThrough else null
-                        )
+                        Column {
+                            Text(text = tache.titre, textDecoration = if (tache.terminee) TextDecoration.LineThrough else null)
+                            if (tache.rappel.isNotBlank()) {
+                                Text(text = tache.rappel, style = MaterialTheme.typography.bodySmall, color = VioletNexora)
+                            }
+                        }
                     }
                 }
             }
@@ -237,14 +256,10 @@ fun EcranTaches() {
                     taches = taches.filter { it !== tache }
                     sauvegarderTaches(context, taches)
                     tacheASupprimer = null
-                }) {
-                    Text("Supprimer", color = Color.Red)
-                }
+                }) { Text("Supprimer", color = Color.Red) }
             },
             dismissButton = {
-                TextButton(onClick = { tacheASupprimer = null }) {
-                    Text("Annuler")
-                }
+                TextButton(onClick = { tacheASupprimer = null }) { Text("Annuler") }
             }
         )
     }
