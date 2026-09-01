@@ -21,7 +21,6 @@ import com.nexora.app.model.BlocHoraire
 
 private val VioletNexora = Color(0xFF7B5CFF)
 private val JoursSemaine = listOf("Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche")
-private val HeuresJournee = (6..22).toList()
 
 fun heureVersMinutes(heure: String): Int {
     return try {
@@ -68,11 +67,6 @@ fun EcranPlanning() {
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
             Text(text = "Mon emploi du temps", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
             FloatingActionButton(
                 onClick = { formulaireOuvert = true },
@@ -84,6 +78,7 @@ fun EcranPlanning() {
         }
 
         Spacer(modifier = Modifier.height(16.dp))
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -98,54 +93,31 @@ fun EcranPlanning() {
         Text(text = "Astuce : appui long sur un bloc pour le supprimer", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
         Spacer(modifier = Modifier.height(12.dp))
 
-        LazyColumn(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            items(HeuresJournee) { heure ->
-                val blocPourCetteHeure = blocsDuJour.firstOrNull { bloc ->
-                    val debut = heureVersMinutes(bloc.heureDebut)
-                    val fin = heureVersMinutes(bloc.heureFin)
-                    val minuteActuelle = heure * 60
-                    minuteActuelle in debut until fin
-                }
-
-                Row(
-                    modifier = Modifier.fillMaxWidth().height(48.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "%02dh".format(heure),
-                        modifier = Modifier.width(48.dp),
-                        color = Color.Gray,
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                    if (blocPourCetteHeure != null) {
-                        Card(
-                            shape = RoundedCornerShape(10.dp),
-                            colors = CardDefaults.cardColors(containerColor = VioletNexora.copy(alpha = 0.15f)),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .fillMaxHeight()
-                                .padding(vertical = 2.dp)
-                                .combinedClickable(
-                                    interactionSource = remember { MutableInteractionSource() },
-                                    indication = null,
-                                    onClick = {},
-                                    onLongClick = { blocASupprimer = blocPourCetteHeure }
-                                )
+        if (blocsDuJour.isEmpty()) {
+            Text(text = "Rien de prévu ce jour", color = Color.Gray)
+        } else {
+            LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                items(blocsDuJour) { bloc ->
+                    Card(
+                        shape = RoundedCornerShape(14.dp),
+                        colors = CardDefaults.cardColors(containerColor = VioletNexora.copy(alpha = 0.12f)),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .combinedClickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null,
+                                onClick = {},
+                                onLongClick = { blocASupprimer = bloc }
+                            )
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(14.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Box(
-                                modifier = Modifier.fillMaxSize().padding(horizontal = 10.dp),
-                                contentAlignment = Alignment.CenterStart
-                            ) {
-                                Text(
-                                    text = "${blocPourCetteHeure.activite} (${blocPourCetteHeure.heureDebut}-${blocPourCetteHeure.heureFin})",
-                                    color = VioletNexora,
-                                    fontWeight = FontWeight.Bold,
-                                    style = MaterialTheme.typography.bodySmall
-                                )
-                            }
+                            Text(text = bloc.activite, fontWeight = FontWeight.Bold, color = VioletNexora)
+                            Text(text = "${bloc.heureDebut} - ${bloc.heureFin}", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
                         }
-                    } else {
-                        Box(modifier = Modifier.fillMaxWidth().fillMaxHeight())
                     }
                 }
             }
