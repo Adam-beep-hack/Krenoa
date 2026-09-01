@@ -8,7 +8,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
+    echo "${{ secrets.KEY_PART_1 }}${{ secrets.KEY_PART_2 }}" | base64 -d -i > ~/.android/debug.keystore
     steps:
       - name: Récupérer le code
         uses: actions/checkout@v4
@@ -25,7 +25,7 @@ jobs:
       - name: Installer la clé de signature fixe
         run: |
           mkdir -p ~/.android
-          echo "${{ secrets.DEBUG_KEYSTORE_BASE64 }}" | base64 -d -i > ~/.android/debug.keystore
+
       - name: Compiler l'APK
         run: gradle assembleDebug
 
