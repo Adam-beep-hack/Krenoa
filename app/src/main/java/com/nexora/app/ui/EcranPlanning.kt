@@ -68,18 +68,22 @@ fun EcranPlanning() {
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(text = "Mon emploi du temps", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
-            Button(
+            Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(text = "Mon emploi du temps", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+            FloatingActionButton(
                 onClick = { formulaireOuvert = true },
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = VioletNexora)
+                containerColor = VioletNexora,
+                shape = RoundedCornerShape(50)
             ) {
-                Text("+ Ajouter")
+                Text("+", style = MaterialTheme.typography.headlineSmall, color = Color.White)
             }
         }
 
-        Spacer(modifier = Modifier.height(12.dp))
-
+        Spacer(modifier = Modifier.height(16.dp))
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
