@@ -1,5 +1,10 @@
 package com.nexora.app.ui
 
+import android.app.Activity
+import android.content.Intent
+import android.speech.RecognizerIntent
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -7,6 +12,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -21,6 +28,7 @@ import com.nexora.app.data.programmerAlarme
 import com.nexora.app.data.sauvegarderIdees
 import com.nexora.app.data.sauvegarderTaches
 import com.nexora.app.model.Tache
+import java.util.Locale
 
 private val VioletNexora = Color(0xFF7B5CFF)
 private val OrNexora = Color(0xFFF6B93B)
@@ -38,6 +46,28 @@ fun EcranAccueil(taches: List<Tache>) {
     var texteIdee by remember { mutableStateOf("") }
     var ideeASupprimer by remember { mutableStateOf<String?>(null) }
     var ideeAConvertir by remember { mutableStateOf<String?>(null) }
+
+    val lanceurVocal = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { resultat ->
+        if (resultat.resultCode == Activity.RESULT_OK) {
+            val texteRecu = resultat.data
+                ?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
+                ?.firstOrNull()
+            if (!texteRecu.isNullOrBlank()) {
+                texteIdee = texteRecu
+            }
+        }
+    }
+
+    fun lancerDicteeVocale() {
+        val intention = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.FRENCH)
+            putExtra(RecognizerIntent.EXTRA_PROMPT, "Dis ton idée...")
+        }
+        lanceurVocal.launch(intention)
+    }
 
     LazyColumn(
         modifier = Modifier.fillMaxSize().padding(20.dp),
@@ -112,7 +142,7 @@ fun EcranAccueil(taches: List<Tache>) {
 
         item {
             Text(text = "Boîte à idées", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-            Text(text = "Note une idée, puis touche-la pour en faire une tâche", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
+            Text(text = "Note ou dicte une idée, puis touche-la pour en faire une tâche", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
             Spacer(modifier = Modifier.height(8.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 OutlinedTextField(
@@ -123,6 +153,9 @@ fun EcranAccueil(taches: List<Tache>) {
                     modifier = Modifier.weight(1f)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
+                IconButton(onClick = { lancerDicteeVocale() }) {
+                    Icon(Icons.Filled.Mic, contentDescription = "Dictée vocale", tint = VioletNexora)
+                }
                 Button(
                     onClick = {
                         if (texteIdee.isNotBlank()) {
