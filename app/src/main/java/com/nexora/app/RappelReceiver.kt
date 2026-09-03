@@ -7,6 +7,8 @@ import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.media.AudioAttributes
+import android.media.RingtoneManager
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import java.util.Calendar
@@ -18,21 +20,37 @@ class RappelReceiver : BroadcastReceiver() {
         val joursTexte = intent.getStringExtra("jours") ?: ""
 
         val gestionnaireNotif = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val sonAlarme = RingtoneManager.getActualDefaultRingtoneUri(context, RingtoneManager.TYPE_ALARM)
+            ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val canal = NotificationChannel(
                 "nexora_rappels",
                 "Rappels Nexora",
                 NotificationManager.IMPORTANCE_HIGH
-            )
+            ).apply {
+                setSound(
+                    sonAlarme,
+                    AudioAttributes.Builder()
+                        .setUsage(AudioAttributes.USAGE_ALARM)
+                        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                        .build()
+                )
+                enableVibration(true)
+                vibrationPattern = longArrayOf(0, 500, 250, 500, 250, 500)
+                setBypassDnd(true)
+            }
             gestionnaireNotif.createNotificationChannel(canal)
         }
 
         val notification = NotificationCompat.Builder(context, "nexora_rappels")
-            .setContentTitle("Nexora")
+            .setContentTitle("⏰ Nexora")
             .setContentText(titre)
             .setSmallIcon(android.R.drawable.ic_dialog_info)
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setPriority(NotificationCompat.PRIORITY_MAX)
+            .setCategory(NotificationCompat.CATEGORY_ALARM)
+            .setSound(sonAlarme)
+            .setVibrate(longArrayOf(0, 500, 250, 500, 250, 500))
             .setAutoCancel(true)
             .build()
 
