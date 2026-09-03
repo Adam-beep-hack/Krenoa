@@ -1,5 +1,6 @@
 package com.nexora.app.ui
 
+import android.app.TimePickerDialog
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -18,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import com.nexora.app.data.chargerPlanning
 import com.nexora.app.data.sauvegarderPlanning
 import com.nexora.app.model.BlocHoraire
+import java.util.Calendar
 
 private val VioletNexora = Color(0xFF7B5CFF)
 private val JoursSemaine = listOf("Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche")
@@ -125,11 +127,25 @@ fun EcranPlanning() {
     }
 
     if (formulaireOuvert) {
+        val contexteDialogue = LocalContext.current
         var jourChoisi by remember { mutableStateOf(jourActuel) }
         var heureDebut by remember { mutableStateOf("") }
         var heureFin by remember { mutableStateOf("") }
         var activite by remember { mutableStateOf("") }
         var menuJourOuvert by remember { mutableStateOf(false) }
+
+        fun choisirHeure(surResultat: (String) -> Unit) {
+            val cal = Calendar.getInstance()
+            TimePickerDialog(
+                contexteDialogue,
+                { _, heure, minute ->
+                    surResultat("%02dh%02d".format(heure, minute))
+                },
+                cal.get(Calendar.HOUR_OF_DAY),
+                cal.get(Calendar.MINUTE),
+                true
+            ).show()
+        }
 
         AlertDialog(
             onDismissRequest = { formulaireOuvert = false },
@@ -149,9 +165,14 @@ fun EcranPlanning() {
                     Spacer(modifier = Modifier.height(8.dp))
                     OutlinedTextField(value = activite, onValueChange = { activite = it }, label = { Text("Activité") }, modifier = Modifier.fillMaxWidth())
                     Spacer(modifier = Modifier.height(8.dp))
-                    OutlinedTextField(value = heureDebut, onValueChange = { heureDebut = it }, label = { Text("Heure début (ex: 14h00)") }, modifier = Modifier.fillMaxWidth())
-                    Spacer(modifier = Modifier.height(8.dp))
-                    OutlinedTextField(value = heureFin, onValueChange = { heureFin = it }, label = { Text("Heure fin (ex: 15h30)") }, modifier = Modifier.fillMaxWidth())
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        OutlinedButton(onClick = { choisirHeure { heureDebut = it } }, shape = RoundedCornerShape(12.dp)) {
+                            Text(if (heureDebut.isBlank()) "Heure début" else heureDebut)
+                        }
+                        OutlinedButton(onClick = { choisirHeure { heureFin = it } }, shape = RoundedCornerShape(12.dp)) {
+                            Text(if (heureFin.isBlank()) "Heure fin" else heureFin)
+                        }
+                    }
                 }
             },
             confirmButton = {
