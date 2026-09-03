@@ -26,6 +26,7 @@ import androidx.core.content.ContextCompat
 import com.nexora.app.data.chargerTaches
 import com.nexora.app.ui.EcranAccueil
 import com.nexora.app.ui.EcranPlanning
+import com.nexora.app.ui.EcranProfil
 import com.nexora.app.ui.EcranRappels
 import com.nexora.app.ui.EcranTaches
 
@@ -104,21 +105,8 @@ fun EcranPrincipal() {
                 1 -> EcranTaches()
                 2 -> EcranPlanning()
                 3 -> EcranRappels(chargerTaches(context))
-                4 -> EcranPlaceholder("Profil")
+                4 -> EcranProfil(chargerTaches(context))
             }
         }
-    }
-}
-
-@Composable
-fun EcranPlaceholder(nom: String) {
-    Column(
-        modifier = Modifier.fillMaxSize().padding(20.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Text(text = nom, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(text = "Bientôt disponible", color = Color.Gray)
     }
 }
