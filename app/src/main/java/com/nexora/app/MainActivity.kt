@@ -94,3 +94,31 @@ fun EcranPrincipal() {
                             indicatorColor = VioletNexora.copy(alpha = 0.15f)
                         )
                     )
+                }
+            }
+        }
+    ) { paddingInterieur ->
+        Box(modifier = Modifier.fillMaxSize().padding(paddingInterieur)) {
+            when (ongletSelectionne) {
+                0 -> EcranAccueil(chargerTaches(context))
+                1 -> EcranTaches()
+                2 -> EcranPlanning()
+                3 -> EcranRappels(chargerTaches(context))
+                4 -> EcranPlaceholder("Profil")
+            }
+        }
+    }
+}
+
+@Composable
+fun EcranPlaceholder(nom: String) {
+    Column(
+        modifier = Modifier.fillMaxSize().padding(20.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(text = nom, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(text = "Bientôt disponible", color = Color.Gray)
+    }
+}
