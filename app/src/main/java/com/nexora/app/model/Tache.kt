@@ -18,13 +18,13 @@ enum class Frequence(val libelle: String) {
 }
 
 val NomsJours = listOf(
-    Calendar.SUNDAY to "Dim",
-    Calendar.MONDAY to "Lun",
-    Calendar.TUESDAY to "Mar",
-    Calendar.WEDNESDAY to "Mer",
-    Calendar.THURSDAY to "Jeu",
-    Calendar.FRIDAY to "Ven",
-    Calendar.SATURDAY to "Sam"
+    Calendar.MONDAY to "L",
+    Calendar.TUESDAY to "M",
+    Calendar.WEDNESDAY to "M",
+    Calendar.THURSDAY to "J",
+    Calendar.FRIDAY to "V",
+    Calendar.SATURDAY to "S",
+    Calendar.SUNDAY to "D"
 )
 
 data class Tache(
