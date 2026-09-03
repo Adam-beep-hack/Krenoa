@@ -16,7 +16,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.nexora.app.data.chargerIdees
+import com.nexora.app.data.chargerTaches
+import com.nexora.app.data.programmerAlarme
 import com.nexora.app.data.sauvegarderIdees
+import com.nexora.app.data.sauvegarderTaches
 import com.nexora.app.model.Tache
 
 private val VioletNexora = Color(0xFF7B5CFF)
@@ -34,6 +37,7 @@ fun EcranAccueil(taches: List<Tache>) {
     var idees by remember { mutableStateOf(chargerIdees(context)) }
     var texteIdee by remember { mutableStateOf("") }
     var ideeASupprimer by remember { mutableStateOf<String?>(null) }
+    var ideeAConvertir by remember { mutableStateOf<String?>(null) }
 
     LazyColumn(
         modifier = Modifier.fillMaxSize().padding(20.dp),
@@ -108,7 +112,7 @@ fun EcranAccueil(taches: List<Tache>) {
 
         item {
             Text(text = "Boîte à idées", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-            Text(text = "Note rapidement une idée, tu l'organiseras plus tard", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
+            Text(text = "Note une idée, puis touche-la pour en faire une tâche", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
             Spacer(modifier = Modifier.height(8.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 OutlinedTextField(
@@ -134,7 +138,7 @@ fun EcranAccueil(taches: List<Tache>) {
                 }
             }
             Spacer(modifier = Modifier.height(4.dp))
-            Text(text = "Astuce : appui long pour supprimer une idée", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
+            Text(text = "Astuce : appui simple pour créer une tâche, appui long pour supprimer", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
         }
 
         items(idees) { idee ->
@@ -146,13 +150,30 @@ fun EcranAccueil(taches: List<Tache>) {
                     .combinedClickable(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null,
-                        onClick = {},
+                        onClick = { ideeAConvertir = idee },
                         onLongClick = { ideeASupprimer = idee }
                     )
             ) {
                 Text(text = idee, modifier = Modifier.padding(12.dp))
             }
         }
+    }
+
+    ideeAConvertir?.let { idee ->
+        FormulaireTache(
+            titre = "Créer une tâche",
+            tacheExistante = Tache(titre = idee),
+            onFermer = { ideeAConvertir = null },
+            onValider = { titreV, rappelV, millisV, prioriteV, frequenceV, joursV ->
+                val nouvelle = Tache(titreV, rappel = rappelV, rappelMillis = millisV, priorite = prioriteV, frequence = frequenceV, joursRepetition = joursV)
+                val tachesActuelles = chargerTaches(context)
+                sauvegarderTaches(context, tachesActuelles + nouvelle)
+                programmerAlarme(context, nouvelle)
+                idees = idees.filter { it != idee }
+                sauvegarderIdees(context, idees)
+                ideeAConvertir = null
+            }
+        )
     }
 
     ideeASupprimer?.let { idee ->
