@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -26,7 +28,6 @@ import com.nexora.app.data.programmerAlarme
 import com.nexora.app.data.sauvegarderIdees
 import com.nexora.app.data.sauvegarderTaches
 import com.nexora.app.model.Tache
-import java.util.Locale
 
 private val VioletNexora = Color(0xFF7B5CFF)
 private val OrNexora = Color(0xFFF6B93B)
@@ -46,14 +47,14 @@ fun EcranAccueil(taches: List<Tache>) {
     var ideeAConvertir by remember { mutableStateOf<String?>(null) }
 
     val lanceurVocal = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult()
+        ActivityResultContracts.StartActivityForResult()
     ) { resultat ->
         if (resultat.resultCode == Activity.RESULT_OK) {
-            val texteRecu = resultat.data
+            val texteReconnu = resultat.data
                 ?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
                 ?.firstOrNull()
-            if (!texteRecu.isNullOrBlank()) {
-                texteIdee = texteRecu
+            if (!texteReconnu.isNullOrBlank()) {
+                texteIdee = texteReconnu
             }
         }
     }
@@ -61,8 +62,8 @@ fun EcranAccueil(taches: List<Tache>) {
     fun lancerDicteeVocale() {
         val intention = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
             putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-            putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.FRENCH)
-            putExtra(RecognizerIntent.EXTRA_PROMPT, "Dis ton idée...")
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE, "fr-FR")
+            putExtra(RecognizerIntent.EXTRA_PROMPT, "Dicte ton idée")
         }
         lanceurVocal.launch(intention)
     }
@@ -152,7 +153,7 @@ fun EcranAccueil(taches: List<Tache>) {
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 IconButton(onClick = { lancerDicteeVocale() }) {
-                    Text("🎤", style = MaterialTheme.typography.titleLarge)
+                    Icon(Icons.Filled.Mic, contentDescription = "Dicter", tint = VioletNexora)
                 }
                 Button(
                     onClick = {
