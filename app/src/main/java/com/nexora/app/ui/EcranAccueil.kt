@@ -1,3 +1,4 @@
+@file:OptIn(ExperimentalFoundationApi::class)
 package com.nexora.app.ui
 
 import android.app.Activity
