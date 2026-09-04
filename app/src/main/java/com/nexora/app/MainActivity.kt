@@ -10,6 +10,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Chat
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Notifications
@@ -25,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.nexora.app.data.chargerTaches
 import com.nexora.app.ui.EcranAccueil
+import com.nexora.app.ui.EcranAssistant
 import com.nexora.app.ui.EcranPlanning
 import com.nexora.app.ui.EcranProfil
 import com.nexora.app.ui.EcranRappels
@@ -76,7 +78,8 @@ fun EcranPrincipal() {
         Triple("Tâches", Icons.Filled.CheckCircle, 1),
         Triple("Planning", Icons.Filled.DateRange, 2),
         Triple("Rappels", Icons.Filled.Notifications, 3),
-        Triple("Profil", Icons.Filled.Person, 4)
+        Triple("Assistant", Icons.Filled.Chat, 4),
+        Triple("Profil", Icons.Filled.Person, 5)
     )
 
     Scaffold(
@@ -88,7 +91,7 @@ fun EcranPrincipal() {
                         selected = ongletSelectionne == index,
                         onClick = { ongletSelectionne = index },
                         icon = { Icon(icone, contentDescription = label) },
-                        label = { Text(label) },
+                        label = { Text(label, style = MaterialTheme.typography.labelSmall) },
                         colors = NavigationBarItemDefaults.colors(
                             selectedIconColor = VioletNexora,
                             selectedTextColor = VioletNexora,
@@ -105,7 +108,8 @@ fun EcranPrincipal() {
                 1 -> EcranTaches()
                 2 -> EcranPlanning()
                 3 -> EcranRappels(chargerTaches(context))
-                4 -> EcranProfil(chargerTaches(context))
+                4 -> EcranAssistant()
+                5 -> EcranProfil(chargerTaches(context))
             }
         }
     }
