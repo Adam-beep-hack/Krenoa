@@ -12,8 +12,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Mic
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -152,9 +150,13 @@ fun EcranAccueil(taches: List<Tache>) {
                     modifier = Modifier.weight(1f)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
-                IconButton(onClick = { lancerDicteeVocale() }) {
-                    Icon(Icons.Rounded.Mic, contentDescription = "Dicter", tint = VioletNexora)
+                OutlinedButton(
+                    onClick = { lancerDicteeVocale() },
+                    shape = RoundedCornerShape(50)
+                ) {
+                    Text("🎤")
                 }
+                Spacer(modifier = Modifier.width(4.dp))
                 Button(
                     onClick = {
                         if (texteIdee.isNotBlank()) {
