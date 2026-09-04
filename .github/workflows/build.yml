@@ -23,7 +23,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
 
       - name: Compiler l'APK
-        run: gradle assembleDebug
+        run: gradle assembleDebug -PGEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
 
       - name: Sauvegarder l'APK
         uses: actions/upload-artifact@v4
