@@ -1,3 +1,4 @@
+@file:OptIn(ExperimentalFoundationApi::class)
 package com.nexora.app.ui
 
 import android.app.DatePickerDialog
@@ -121,37 +122,16 @@ fun FormulaireTache(
                 if (frequence == Frequence.PERSONNALISE) {
                     Spacer(modifier = Modifier.height(8.dp))
                     Text("Choisir les jours :", style = MaterialTheme.typography.bodySmall)
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(4.dp),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                         NomsJours.forEach { (valeurJour, nomJour) ->
                             val selectionne = joursChoisis.contains(valeurJour)
-                            Surface(
-                                shape = RoundedCornerShape(50),
-                                color = if (selectionne) VioletNexora else Color.Transparent,
-                                border = androidx.compose.foundation.BorderStroke(1.dp, VioletNexora),
-                                modifier = Modifier
-                                    .size(32.dp)
-                                    .combinedClickable(
-                                        interactionSource = remember { MutableInteractionSource() },
-                                        indication = null,
-                                        onClick = {
-                                            joursChoisis = if (selectionne) joursChoisis - valeurJour else joursChoisis + valeurJour
-                                        },
-                                        onLongClick = {}
-                                    )
-                            ) {
-                                Box(contentAlignment = Alignment.Center) {
-                                    Text(
-                                        text = nomJour,
-                                        color = if (selectionne) Color.White else VioletNexora,
-                                        style = MaterialTheme.typography.bodySmall,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                }
-                            }
+                            FilterChip(
+                                selected = selectionne,
+                                onClick = {
+                                    joursChoisis = if (selectionne) joursChoisis - valeurJour else joursChoisis + valeurJour
+                                },
+                                label = { Text(nomJour) }
+                            )
                         }
                     }
                 }
@@ -170,7 +150,6 @@ fun FormulaireTache(
     )
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun EcranTaches() {
     val context = LocalContext.current
