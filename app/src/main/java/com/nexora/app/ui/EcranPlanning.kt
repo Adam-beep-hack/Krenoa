@@ -127,20 +127,17 @@ fun EcranPlanning() {
     }
 
     if (formulaireOuvert) {
-        val contexteDialogue = LocalContext.current
         var jourChoisi by remember { mutableStateOf(jourActuel) }
         var heureDebut by remember { mutableStateOf("") }
         var heureFin by remember { mutableStateOf("") }
         var activite by remember { mutableStateOf("") }
         var menuJourOuvert by remember { mutableStateOf(false) }
 
-        fun choisirHeure(surResultat: (String) -> Unit) {
+        fun choisirHeure(surChoisi: (String) -> Unit) {
             val cal = Calendar.getInstance()
             TimePickerDialog(
-                contexteDialogue,
-                { _, heure, minute ->
-                    surResultat("%02dh%02d".format(heure, minute))
-                },
+                context,
+                { _, h, m -> surChoisi("%02dh%02d".format(h, m)) },
                 cal.get(Calendar.HOUR_OF_DAY),
                 cal.get(Calendar.MINUTE),
                 true
@@ -165,13 +162,20 @@ fun EcranPlanning() {
                     Spacer(modifier = Modifier.height(8.dp))
                     OutlinedTextField(value = activite, onValueChange = { activite = it }, label = { Text("Activité") }, modifier = Modifier.fillMaxWidth())
                     Spacer(modifier = Modifier.height(8.dp))
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        OutlinedButton(onClick = { choisirHeure { heureDebut = it } }, shape = RoundedCornerShape(12.dp)) {
-                            Text(if (heureDebut.isBlank()) "Heure début" else heureDebut)
-                        }
-                        OutlinedButton(onClick = { choisirHeure { heureFin = it } }, shape = RoundedCornerShape(12.dp)) {
-                            Text(if (heureFin.isBlank()) "Heure fin" else heureFin)
-                        }
+                    OutlinedButton(
+                        onClick = { choisirHeure { heureDebut = it } },
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(if (heureDebut.isBlank()) "Choisir l'heure de début" else "Début : $heureDebut")
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    OutlinedButton(
+                        onClick = { choisirHeure { heureFin = it } },
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(if (heureFin.isBlank()) "Choisir l'heure de fin" else "Fin : $heureFin")
                     }
                 }
             },
