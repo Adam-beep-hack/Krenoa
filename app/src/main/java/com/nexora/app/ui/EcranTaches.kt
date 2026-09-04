@@ -122,15 +122,29 @@ fun FormulaireTache(
                 if (frequence == Frequence.PERSONNALISE) {
                     Spacer(modifier = Modifier.height(8.dp))
                     Text("Choisir les jours :", style = MaterialTheme.typography.bodySmall)
+                    Spacer(modifier = Modifier.height(4.dp))
                     Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                        NomsJours.forEach { (valeurJour, nomJour) ->
+                        NomsJours.take(4).forEach { (valeurJour, nomJour) ->
                             val selectionne = joursChoisis.contains(valeurJour)
                             FilterChip(
                                 selected = selectionne,
                                 onClick = {
                                     joursChoisis = if (selectionne) joursChoisis - valeurJour else joursChoisis + valeurJour
                                 },
-                                label = { Text(nomJour) }
+                                label = { Text(nomJour, style = MaterialTheme.typography.bodySmall) }
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                        NomsJours.drop(4).forEach { (valeurJour, nomJour) ->
+                            val selectionne = joursChoisis.contains(valeurJour)
+                            FilterChip(
+                                selected = selectionne,
+                                onClick = {
+                                    joursChoisis = if (selectionne) joursChoisis - valeurJour else joursChoisis + valeurJour
+                                },
+                                label = { Text(nomJour, style = MaterialTheme.typography.bodySmall) }
                             )
                         }
                     }
