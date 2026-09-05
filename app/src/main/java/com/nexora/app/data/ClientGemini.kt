@@ -1,6 +1,6 @@
-package com.nexora.app.data
+package com.krenoa.app.data
 
-import com.nexora.app.BuildConfig
+import com.krenoa.app.BuildConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
