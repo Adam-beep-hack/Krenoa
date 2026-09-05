@@ -78,6 +78,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun EcranPrincipal() {
     var ongletSelectionne by remember { mutableStateOf(0) }
+    var ecranDetail by remember { mutableStateOf<String?>(null) }
     val context = LocalContext.current
     val onglets = listOf(
         Triple("Accueil", Icons.Filled.Home, 0),
@@ -87,6 +88,11 @@ fun EcranPrincipal() {
         Triple("Assistant", Icons.Filled.Chat, 4),
         Triple("Profil", Icons.Filled.Person, 5)
     )
+
+    if (ecranDetail == "toutes_taches") {
+        EcranToutesTaches(onRetour = { ecranDetail = null })
+        return
+    }
 
     Scaffold(
         containerColor = FondClair,
