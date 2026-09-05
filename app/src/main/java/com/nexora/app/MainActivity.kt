@@ -1,4 +1,4 @@
-package com.nexora.app
+package com.krenoa.app
 
 import android.Manifest
 import android.content.pm.PackageManager
