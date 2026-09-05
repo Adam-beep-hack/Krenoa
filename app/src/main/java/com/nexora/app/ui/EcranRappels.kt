@@ -1,4 +1,4 @@
-package com.nexora.app.ui
+package com.krenoa.app.ui
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -11,10 +11,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.nexora.app.model.Frequence
-import com.nexora.app.model.Tache
+import com.krenoa.app.model.Frequence
+import com.krenoa.app.model.Tache
 
-private val VioletNexora = Color(0xFF7B5CFF)
+private val VioletKrenoa = Color(0xFF7B5CFF)
 
 @Composable
 fun EcranRappels(taches: List<Tache>) {
