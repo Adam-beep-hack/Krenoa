@@ -1,13 +1,13 @@
-package com.nexora.app.data
+package com.krenoa.app.data
 
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import com.nexora.app.RappelReceiver
-import com.nexora.app.model.Frequence
-import com.nexora.app.model.Priorite
-import com.nexora.app.model.Tache
+import com.krenoa.app.RappelReceiver
+import com.krenoa.app.model.Frequence
+import com.krenoa.app.model.Priorite
+import com.krenoa.app.model.Tache
 import java.util.Calendar
 
 fun programmerAlarme(context: Context, tache: Tache) {
