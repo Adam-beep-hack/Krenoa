@@ -1,4 +1,4 @@
-package com.nexora.app.ui
+package com.krenoa.app.ui
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -11,10 +11,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.nexora.app.data.demanderAGemini
+import com.krenoa.app.data.demanderAGemini
 import kotlinx.coroutines.launch
 
-private val VioletNexora = Color(0xFF7B5CFF)
+private val VioletKrenoa = Color(0xFF7B5CFF)
 
 data class MessageChat(val texte: String, val estUtilisateur: Boolean)
 
@@ -26,7 +26,7 @@ fun EcranAssistant() {
     val portee = rememberCoroutineScope()
 
     Column(modifier = Modifier.fillMaxSize().padding(20.dp)) {
-        Text(text = "Assistant Nexora", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
+        Text(text = "Assistant Krenoa", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
         Spacer(modifier = Modifier.height(12.dp))
 
         LazyColumn(
@@ -41,7 +41,7 @@ fun EcranAssistant() {
                     Card(
                         shape = RoundedCornerShape(14.dp),
                         colors = CardDefaults.cardColors(
-                            containerColor = if (message.estUtilisateur) VioletNexora else Color(0xFFEDEBFF)
+                            containerColor = if (message.estUtilisateur) VioletKrenoa else Color(0xFFEDEBFF)
                         )
                     ) {
                         Text(
