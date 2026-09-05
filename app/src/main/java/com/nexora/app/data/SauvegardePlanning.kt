@@ -1,10 +1,10 @@
-package com.nexora.app.data
+package com.krenoa.app.data
 
 import android.content.Context
-import com.nexora.app.model.BlocHoraire
+import com.krenoa.app.model.BlocHoraire
 
 fun sauvegarderPlanning(context: Context, planning: List<BlocHoraire>) {
-    val prefs = context.getSharedPreferences("nexora_prefs", Context.MODE_PRIVATE)
+    val prefs = context.getSharedPreferences("krenoa_prefs", Context.MODE_PRIVATE)
     val texte = planning.joinToString(";;") {
         "${it.jour}~${it.heureDebut}~${it.heureFin}~${it.activite}"
     }
@@ -12,7 +12,7 @@ fun sauvegarderPlanning(context: Context, planning: List<BlocHoraire>) {
 }
 
 fun chargerPlanning(context: Context): List<BlocHoraire> {
-    val prefs = context.getSharedPreferences("nexora_prefs", Context.MODE_PRIVATE)
+    val prefs = context.getSharedPreferences("krenoa_prefs", Context.MODE_PRIVATE)
     val texte = prefs.getString("planning", "") ?: ""
     if (texte.isBlank()) return emptyList()
     return texte.split(";;").mapNotNull { ligne ->
