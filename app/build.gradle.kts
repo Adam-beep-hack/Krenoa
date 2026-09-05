@@ -8,7 +8,7 @@ android {
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "krenoa"
+        applicationId = "com.krenoa.app"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
