@@ -1,4 +1,4 @@
-package com.nexora.app
+package com.krenoa.app
 
 import android.app.AlarmManager
 import android.app.NotificationChannel
