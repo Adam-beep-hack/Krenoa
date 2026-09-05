@@ -48,7 +48,7 @@ fun EcranRappels(taches: List<Tache>) {
                                     tache.rappel.takeIf { it.isNotBlank() },
                                     tache.frequence.libelle.takeIf { tache.frequence != Frequence.UNIQUE }
                                 ).joinToString(" · ")
-                                Text(text = details, style = MaterialTheme.typography.bodySmall, color = VioletNexora)
+                                Text(text = details, style = MaterialTheme.typography.bodySmall, color = VioletKrenoa)
                             }
                         }
                     }
