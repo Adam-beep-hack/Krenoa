@@ -1,5 +1,5 @@
 @file:OptIn(ExperimentalFoundationApi::class)
-package com.nexora.app.ui
+package com.krenoa.app.ui
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
@@ -19,16 +19,16 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
-import com.nexora.app.data.chargerTaches
-import com.nexora.app.data.programmerAlarme
-import com.nexora.app.data.sauvegarderTaches
-import com.nexora.app.model.Frequence
-import com.nexora.app.model.NomsJours
-import com.nexora.app.model.Priorite
-import com.nexora.app.model.Tache
+import com.krenoa.app.data.chargerTaches
+import com.krenoa.app.data.programmerAlarme
+import com.krenoa.app.data.sauvegarderTaches
+import com.krenoa.app.model.Frequence
+import com.krenoa.app.model.NomsJours
+import com.krenoa.app.model.Priorite
+import com.krenoa.app.model.Tache
 import java.util.Calendar
 
-private val VioletNexora = Color(0xFF7B5CFF)
+private val VioletKrenoa = Color(0xFF7B5CFF)
 
 @Composable
 fun FormulaireTache(
