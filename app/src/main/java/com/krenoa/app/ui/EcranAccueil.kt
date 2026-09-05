@@ -1,5 +1,5 @@
 @file:OptIn(ExperimentalFoundationApi::class)
-package com.nexora.app.ui
+package com.krenoa.app.ui
 
 import android.app.Activity
 import android.content.Intent
@@ -21,15 +21,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.nexora.app.data.chargerIdees
-import com.nexora.app.data.chargerTaches
-import com.nexora.app.data.programmerAlarme
-import com.nexora.app.data.sauvegarderIdees
-import com.nexora.app.data.sauvegarderTaches
-import com.nexora.app.model.Tache
+import com.krenoa.app.data.chargerIdees
+import com.krenoa.app.data.chargerTaches
+import com.krenoa.app.data.programmerAlarme
+import com.krenoa.app.data.sauvegarderIdees
+import com.krenoa.app.data.sauvegarderTaches
+import com.krenoa.app.model.Tache
 
-private val VioletNexora = Color(0xFF7B5CFF)
-private val OrNexora = Color(0xFFF6B93B)
+private val VioletKrenoa = Color(0xFF7B5CFF)
+private val OrKrenoa = Color(0xFFF6B93B)
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -72,14 +72,14 @@ fun EcranAccueil(taches: List<Tache>) {
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         item {
-            Text(text = "NEXORA", style = MaterialTheme.typography.labelLarge, color = VioletNexora, fontWeight = FontWeight.Bold)
+            Text(text = "KRENOA", style = MaterialTheme.typography.labelLarge, color = VioletKrenoa, fontWeight = FontWeight.Bold)
             Text(text = "Bonjour !", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
         }
 
         item {
             Card(
                 shape = RoundedCornerShape(20.dp),
-                colors = CardDefaults.cardColors(containerColor = VioletNexora),
+                colors = CardDefaults.cardColors(containerColor = VioletKrenoa),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(modifier = Modifier.padding(20.dp)) {
@@ -99,7 +99,7 @@ fun EcranAccueil(taches: List<Tache>) {
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Text(text = "Prochain rappel", fontWeight = FontWeight.Bold, color = OrNexora)
+                    Text(text = "Prochain rappel", fontWeight = FontWeight.Bold, color = OrKrenoa)
                     Spacer(modifier = Modifier.height(6.dp))
                     if (prochainRappel != null) {
                         Text(text = prochainRappel.titre, style = MaterialTheme.typography.bodyLarge)
@@ -120,7 +120,7 @@ fun EcranAccueil(taches: List<Tache>) {
                     modifier = Modifier.weight(1f)
                 ) {
                     Column(modifier = Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(text = "$total", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = VioletNexora)
+                        Text(text = "$total", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = VioletKrenoa)
                         Text(text = "Tâches totales", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
                     }
                 }
@@ -131,7 +131,7 @@ fun EcranAccueil(taches: List<Tache>) {
                     modifier = Modifier.weight(1f)
                 ) {
                     Column(modifier = Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(text = "${total - terminees}", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = OrNexora)
+                        Text(text = "${total - terminees}", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = OrKrenoa)
                         Text(text = "Restantes", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
                     }
                 }
@@ -167,7 +167,7 @@ fun EcranAccueil(taches: List<Tache>) {
                         }
                     },
                     shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = OrNexora)
+                    colors = ButtonDefaults.buttonColors(containerColor = OrKrenoa)
                 ) {
                     Text("+")
                 }
@@ -179,7 +179,7 @@ fun EcranAccueil(taches: List<Tache>) {
         items(idees) { idee ->
             Card(
                 shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(containerColor = OrNexora.copy(alpha = 0.12f)),
+                colors = CardDefaults.cardColors(containerColor = OrKrenoa.copy(alpha = 0.12f)),
                 modifier = Modifier
                     .fillMaxWidth()
                     .combinedClickable(
