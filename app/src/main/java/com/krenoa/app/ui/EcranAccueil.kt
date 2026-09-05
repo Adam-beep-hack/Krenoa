@@ -36,9 +36,9 @@ private val VioletKrenoa = Color(0xFF7B5CFF)
 private val OrKrenoa = Color(0xFFF6B93B)
 private val FondGris = Color(0xFFF5F4FA)
 
-@OptIn(ExperimentalFoundationApi::class)
+@@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun EcranAccueil(taches: List<Tache>) {
+fun EcranAccueil(taches: List<Tache>, onVoirToutTaches: () -> Unit = {}) {
     val context = LocalContext.current
     var listeTaches by remember { mutableStateOf(taches) }
     val total = listeTaches.size
