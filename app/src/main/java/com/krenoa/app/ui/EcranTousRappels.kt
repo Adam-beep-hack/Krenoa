@@ -2,6 +2,7 @@ package com.krenoa.app.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -98,7 +99,7 @@ private fun CarteRappelComplete(tache: Tache, onClick: () -> Unit) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             androidx.compose.foundation.layout.Column(
-                modifier = Modifier.weight(1f).androidx.compose.foundation.clickable { onClick() }
+                modifier = Modifier.weight(1f).clickable { onClick() }
             ) {
                 Text(tache.titre, fontWeight = FontWeight.Medium)
                 Text(tache.rappel, style = MaterialTheme.typography.bodySmall, color = Color.Gray)
