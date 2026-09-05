@@ -117,7 +117,7 @@ fun EcranPlanning() {
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(text = bloc.activite, fontWeight = FontWeight.Bold, color = VioletNexora)
+                            Text(text = bloc.activite, fontWeight = FontWeight.Bold, color = VioletKrenoa)
                             Text(text = "${bloc.heureDebut} - ${bloc.heureFin}", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
                         }
                     }
