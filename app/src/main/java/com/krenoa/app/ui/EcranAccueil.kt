@@ -6,8 +6,6 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -67,165 +65,146 @@ fun EcranAccueil(taches: List<Tache>) {
     }
 
     Box(modifier = Modifier.fillMaxSize().background(FondGris)) {
-        LazyColumn(
-            modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp),
-            verticalArrangement = Arrangement.spacedBy(18.dp),
-            contentPadding = PaddingValues(top = 16.dp, bottom = 100.dp)
+        Column(
+            modifier = Modifier.fillMaxSize().padding(horizontal = 18.dp, vertical = 10.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            item {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(Icons.Filled.Menu, contentDescription = "Menu", tint = Color(0xFF2A2438), modifier = Modifier.size(20.dp))
+                Text("KRENOA", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = Color(0xFF2A2438))
+                Row {
+                    Icon(Icons.Filled.Search, contentDescription = "Rechercher", tint = Color(0xFF2A2438), modifier = Modifier.size(20.dp))
+                    Spacer(modifier = Modifier.width(14.dp))
+                    Icon(Icons.Filled.Notifications, contentDescription = "Notifications", tint = Color(0xFF2A2438), modifier = Modifier.size(20.dp))
+                }
+            }
+
+            Column {
+                Text("Bonjour, Hama ! 👋", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                Text("Prêt à accomplir de grandes choses aujourd'hui ?", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
+            }
+
+            Card(
+                shape = RoundedCornerShape(18.dp),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFF120E24)),
+                modifier = Modifier.fillMaxWidth()
+            ) {
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                    modifier = Modifier.padding(14.dp).fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Icon(Icons.Filled.Menu, contentDescription = "Menu", tint = Color(0xFF2A2438))
-                    Text("KRENOA", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = Color(0xFF2A2438))
-                    Row {
-                        Icon(Icons.Filled.Search, contentDescription = "Rechercher", tint = Color(0xFF2A2438))
-                        Spacer(modifier = Modifier.width(16.dp))
-                        Icon(Icons.Filled.Notifications, contentDescription = "Notifications", tint = Color(0xFF2A2438))
+                    Column {
+                        Text("Progression quotidienne", color = Color.White, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.bodyMedium)
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text("Tu es sur la bonne voie !", color = Color(0xFFB9A6FF), style = MaterialTheme.typography.labelSmall)
+                        Text("$terminees / $total tâches terminées", color = Color(0xFFB9A6FF), style = MaterialTheme.typography.labelSmall)
                     }
+                    AnneauProgression(pourcentage = progression)
                 }
             }
 
-            item {
-                Column {
-                    Text("Bonjour, Hama ! 👋", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
-                    Text("Prêt à accomplir de grandes choses aujourd'hui ?", style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
-                }
-            }
+            Card(
+                shape = RoundedCornerShape(14.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+                modifier = Modifier.fillMaxWidth().weight(1f)
+            ) {
+                Column(modifier = Modifier.padding(12.dp)) {
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                        Text("Mes tâches du jour", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
+                        Text("Voir tout", color = VioletKrenoa, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Medium)
+                    }
+                    Spacer(modifier = Modifier.height(4.dp))
 
-            item {
-                Card(
-                    shape = RoundedCornerShape(20.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFF120E24)),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Row(
-                        modifier = Modifier.padding(20.dp).fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
+                    val tachesDuJour = listeTaches.filter { !it.terminee }.take(2)
+                    if (tachesDuJour.isEmpty()) {
+                        Text("Aucune tâche pour aujourd'hui", color = Color.Gray, style = MaterialTheme.typography.labelSmall)
+                    } else {
+                        tachesDuJour.forEachIndexed { index, tache ->
+                            LigneTache(tache = tache, surCoche = { bascculerTermine(tache) })
+                            if (index != tachesDuJour.lastIndex) {
+                                Divider(color = Color(0xFFF0EEF7))
+                            }
+                        }
+                    }
+
+                    TextButton(
+                        onClick = { afficherAjoutRapide = true },
+                        contentPadding = PaddingValues(vertical = 2.dp),
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
                     ) {
-                        Column {
-                            Text("Progression quotidienne", color = Color.White, fontWeight = FontWeight.Bold)
-                            Spacer(modifier = Modifier.height(6.dp))
-                            Text("Tu es sur la bonne voie !", color = Color(0xFFB9A6FF), style = MaterialTheme.typography.bodySmall)
-                            Text("$terminees / $total tâches terminées", color = Color(0xFFB9A6FF), style = MaterialTheme.typography.bodySmall)
-                        }
-                        AnneauProgression(pourcentage = progression)
+                        Icon(Icons.Filled.Add, contentDescription = null, tint = VioletKrenoa, modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("Ajouter une tâche", color = VioletKrenoa, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Medium)
                     }
                 }
             }
 
-            item {
-                Card(
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Text("Mes tâches du jour", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                            Text("Voir tout", color = VioletKrenoa, fontWeight = FontWeight.Medium)
-                        }
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        val tachesDuJour = listeTaches.filter { !it.terminee }.take(5)
-                        if (tachesDuJour.isEmpty()) {
-                            Text("Aucune tâche pour aujourd'hui", color = Color.Gray, style = MaterialTheme.typography.bodySmall)
-                            Spacer(modifier = Modifier.height(8.dp))
-                        } else {
-                            tachesDuJour.forEachIndexed { index, tache ->
-                                LigneTache(tache = tache, surCoche = { bascculerTermine(tache) })
-                                if (index != tachesDuJour.lastIndex) {
-                                    Divider(color = Color(0xFFF0EEF7))
-                                }
-                            }
-                        }
-
-                        TextButton(
-                            onClick = { afficherAjoutRapide = true },
-                            modifier = Modifier.align(Alignment.CenterHorizontally)
-                        ) {
-                            Icon(Icons.Filled.Add, contentDescription = null, tint = VioletKrenoa)
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text("Ajouter une tâche", color = VioletKrenoa, fontWeight = FontWeight.Medium)
-                        }
+            Card(
+                shape = RoundedCornerShape(14.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+                modifier = Modifier.fillMaxWidth().weight(1f)
+            ) {
+                Column(modifier = Modifier.padding(12.dp)) {
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                        Text("Prochains rappels", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
+                        Text("Voir tout", color = VioletKrenoa, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Medium)
                     }
-                }
-            }
+                    Spacer(modifier = Modifier.height(4.dp))
 
-            item {
-                Card(
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Text("Prochains rappels", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                            Text("Voir tout", color = VioletKrenoa, fontWeight = FontWeight.Medium)
-                        }
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        if (prochainsRappels.isEmpty()) {
-                            Text("Aucun rappel à venir", color = Color.Gray, style = MaterialTheme.typography.bodySmall)
-                        } else {
-                            prochainsRappels.forEachIndexed { index, tache ->
-                                LigneRappel(tache = tache)
-                                if (index != prochainsRappels.lastIndex) {
-                                    Divider(color = Color(0xFFF0EEF7))
-                                }
+                    if (prochainsRappels.isEmpty()) {
+                        Text("Aucun rappel à venir", color = Color.Gray, style = MaterialTheme.typography.labelSmall)
+                    } else {
+                        prochainsRappels.forEachIndexed { index, tache ->
+                            LigneRappel(tache = tache)
+                            if (index != prochainsRappels.lastIndex) {
+                                Divider(color = Color(0xFFF0EEF7))
                             }
                         }
                     }
                 }
             }
 
-            item {
-                Card(
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Text("Mes notes", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                            Text("Voir tout", color = VioletKrenoa, fontWeight = FontWeight.Medium)
-                        }
-                        Spacer(modifier = Modifier.height(8.dp))
+            Card(
+                shape = RoundedCornerShape(14.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+                modifier = Modifier.fillMaxWidth().weight(1f)
+            ) {
+                Column(modifier = Modifier.padding(12.dp)) {
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                        Text("Mes notes", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
+                        Text("Voir tout", color = VioletKrenoa, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Medium)
+                    }
+                    Spacer(modifier = Modifier.height(4.dp))
 
-                        if (idees.isEmpty()) {
-                            Text("Aucune note pour le moment", color = Color.Gray, style = MaterialTheme.typography.bodySmall)
-                        } else {
-                            idees.take(3).forEachIndexed { index, idee ->
-                                Text(
-                                    text = idee,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .combinedClickable(
-                                            interactionSource = remember { MutableInteractionSource() },
-                                            indication = null,
-                                            onClick = { ideeAConvertir = idee },
-                                            onLongClick = { ideeASupprimer = idee }
-                                        )
-                                        .padding(vertical = 10.dp)
-                                )
-                                if (index != idees.take(3).lastIndex) {
-                                    Divider(color = Color(0xFFF0EEF7))
-                                }
+                    val dernieresNotes = idees.takeLast(2).reversed()
+                    if (dernieresNotes.isEmpty()) {
+                        Text("Aucune note pour le moment", color = Color.Gray, style = MaterialTheme.typography.labelSmall)
+                    } else {
+                        dernieresNotes.forEachIndexed { index, idee ->
+                            Text(
+                                text = idee,
+                                style = MaterialTheme.typography.bodySmall,
+                                maxLines = 1,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .combinedClickable(
+                                        interactionSource = remember { MutableInteractionSource() },
+                                        indication = null,
+                                        onClick = { ideeAConvertir = idee },
+                                        onLongClick = { ideeASupprimer = idee }
+                                    )
+                                    .padding(vertical = 6.dp)
+                            )
+                            if (index != dernieresNotes.lastIndex) {
+                                Divider(color = Color(0xFFF0EEF7))
                             }
                         }
                     }
@@ -237,7 +216,7 @@ fun EcranAccueil(taches: List<Tache>) {
             onClick = { afficherAjoutNote = true },
             containerColor = OrKrenoa,
             shape = CircleShape,
-            modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 24.dp)
+            modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 14.dp)
         ) {
             Icon(Icons.Filled.Add, contentDescription = "Ajouter une note", tint = Color.White)
         }
@@ -329,9 +308,9 @@ fun EcranAccueil(taches: List<Tache>) {
 
 @Composable
 private fun AnneauProgression(pourcentage: Int) {
-    Box(modifier = Modifier.size(72.dp), contentAlignment = Alignment.Center) {
+    Box(modifier = Modifier.size(60.dp), contentAlignment = Alignment.Center) {
         Canvas(modifier = Modifier.fillMaxSize()) {
-            val epaisseur = 8.dp.toPx()
+            val epaisseur = 7.dp.toPx()
             drawArc(
                 color = Color(0xFF2A2438),
                 startAngle = -90f,
@@ -347,29 +326,34 @@ private fun AnneauProgression(pourcentage: Int) {
                 style = Stroke(width = epaisseur, cap = StrokeCap.Round)
             )
         }
-        Text("$pourcentage%", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 15.sp)
+        Text("$pourcentage%", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 13.sp)
     }
 }
 
 @Composable
 private fun LigneTache(tache: Tache, surCoche: () -> Unit) {
     Row(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp),
+        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Checkbox(checked = tache.terminee, onCheckedChange = { surCoche() }, colors = CheckboxDefaults.colors(checkedColor = VioletKrenoa))
+            Checkbox(
+                checked = tache.terminee,
+                onCheckedChange = { surCoche() },
+                colors = CheckboxDefaults.colors(checkedColor = VioletKrenoa),
+                modifier = Modifier.size(32.dp)
+            )
             Column {
-                Text(tache.titre, fontWeight = FontWeight.Medium)
-                Text(tache.rappel, style = MaterialTheme.typography.bodySmall, color = Color.Gray)
+                Text(tache.titre, fontWeight = FontWeight.Medium, style = MaterialTheme.typography.bodySmall, maxLines = 1)
+                Text(tache.rappel, style = MaterialTheme.typography.labelSmall, color = Color.Gray, maxLines = 1)
             }
         }
         Box(
             modifier = Modifier
                 .clip(RoundedCornerShape(50))
                 .background(tache.priorite.couleur.copy(alpha = 0.15f))
-                .padding(horizontal = 10.dp, vertical = 4.dp)
+                .padding(horizontal = 8.dp, vertical = 2.dp)
         ) {
             Text(tache.priorite.libelle, style = MaterialTheme.typography.labelSmall, color = tache.priorite.couleur)
         }
@@ -382,14 +366,14 @@ private fun LigneRappel(tache: Tache) {
     val heures = diffMillis / (1000 * 60 * 60)
     val minutes = (diffMillis / (1000 * 60)) % 60
     Row(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp),
+        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column {
-            Text(tache.titre, fontWeight = FontWeight.Medium)
-            Text(tache.rappel, style = MaterialTheme.typography.bodySmall, color = Color.Gray)
+            Text(tache.titre, fontWeight = FontWeight.Medium, style = MaterialTheme.typography.bodySmall, maxLines = 1)
+            Text(tache.rappel, style = MaterialTheme.typography.labelSmall, color = Color.Gray, maxLines = 1)
         }
-        Text("Dans ${heures}h ${minutes}m", color = VioletKrenoa, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.bodySmall)
+        Text("Dans ${heures}h ${minutes}m", color = VioletKrenoa, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.labelSmall)
     }
 }
