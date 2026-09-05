@@ -49,7 +49,7 @@ fun EcranProfil(taches: List<Tache>) {
                 modifier = Modifier.weight(1f)
             ) {
                 Column(modifier = Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(text = "$total", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = VioletNexora)
+                    Text(text = "$total", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = VioletKrenoa)
                     Text(text = "Tâches créées", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
                 }
             }
