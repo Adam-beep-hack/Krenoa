@@ -1,6 +1,7 @@
 package com.krenoa.app.ui
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.combinedClickable
@@ -94,7 +95,7 @@ fun EcranAccueil(taches: List<Tache>, onVoirToutTaches: () -> Unit = {}) {
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Row(
-                    modifier = Modifier.padding(14.dp).fillMaxWidth(),
+                    modifier = Modifier.padding(12.dp).fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
@@ -117,8 +118,17 @@ fun EcranAccueil(taches: List<Tache>, onVoirToutTaches: () -> Unit = {}) {
                 Column(modifier = Modifier.padding(12.dp)) {
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                         Text("Mes tâches du jour", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
-                        Text("Voir tout", color = VioletKrenoa, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Medium)
+                        Text(
+                            "Voir tout",
+                            color = VioletKrenoa,
+                            style = MaterialTheme.typography.bodySmall,
+                            fontWeight = FontWeight.Medium,
+                            modifier = Modifier.clickable { onVoirToutTaches() }
+                        )
                     }
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    val tachesDuJour = listeTaches.filter { !it.terminee }.take(2)
                     Spacer(modifier = Modifier.height(4.dp))
 
                     val tachesDuJour = listeTaches.filter { !it.terminee }.take(2)
