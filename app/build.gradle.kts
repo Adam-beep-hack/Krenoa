@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.nexora.app"
+    namespace = "com.krenoa.app"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.nexora.app"
+        applicationId = "krenoa"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
