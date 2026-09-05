@@ -355,13 +355,13 @@ private fun CarteTache(tache: Tache, surCoche: () -> Unit) {
                 }
             }
             Box(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(50))
-                    .background(couleurPriorite(tache.priorite).copy(alpha = 0.15f))
-                    .padding(horizontal = 10.dp, vertical = 4.dp)
-            ) {
-                Text(tache.priorite, style = MaterialTheme.typography.labelSmall, color = couleurPriorite(tache.priorite))
-            }
+    modifier = Modifier
+        .clip(RoundedCornerShape(50))
+        .background(tache.priorite.couleur.copy(alpha = 0.15f))
+        .padding(horizontal = 10.dp, vertical = 4.dp)
+) {
+    Text(tache.priorite.libelle, style = MaterialTheme.typography.labelSmall, color = tache.priorite.couleur)
+}
         }
     }
 }
@@ -389,12 +389,4 @@ private fun CarteRappel(tache: Tache) {
             Text("Dans ${heures}h ${minutes}m", color = VioletKrenoa, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.bodySmall)
         }
     }
-}
-
-private fun couleurPriorite(priorite: String): Color = when {
-    priorite.contains("Urgent", ignoreCase = true) -> RougeUrgent
-    priorite.contains("Élev", ignoreCase = true) || priorite.contains("Elev", ignoreCase = true) -> VioletKrenoa
-    priorite.contains("Moyen", ignoreCase = true) -> OrKrenoa
-    priorite.contains("Faible", ignoreCase = true) -> VertFaible
-    else -> Color.Gray
 }
