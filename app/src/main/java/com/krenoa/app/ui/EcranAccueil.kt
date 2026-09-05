@@ -1,13 +1,8 @@
-@file:OptIn(ExperimentalFoundationApi::class)
 package com.krenoa.app.ui
 
-import android.app.Activity
-import android.content.Intent
-import android.speech.RecognizerIntent
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
@@ -15,10 +10,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.background
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Search
@@ -27,7 +20,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -45,8 +37,6 @@ import com.krenoa.app.model.Tache
 private val VioletKrenoa = Color(0xFF7B5CFF)
 private val OrKrenoa = Color(0xFFF6B93B)
 private val FondGris = Color(0xFFF5F4FA)
-private val VertFaible = Color(0xFF43A047)
-private val RougeUrgent = Color(0xFFE53935)
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -63,32 +53,11 @@ fun EcranAccueil(taches: List<Tache>) {
         .take(2)
 
     var idees by remember { mutableStateOf(chargerIdees(context)) }
-    var texteIdee by remember { mutableStateOf("") }
     var ideeASupprimer by remember { mutableStateOf<String?>(null) }
     var ideeAConvertir by remember { mutableStateOf<String?>(null) }
     var afficherAjoutRapide by remember { mutableStateOf(false) }
-
-    val lanceurVocal = rememberLauncherForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { resultat ->
-        if (resultat.resultCode == Activity.RESULT_OK) {
-            val texteReconnu = resultat.data
-                ?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
-                ?.firstOrNull()
-            if (!texteReconnu.isNullOrBlank()) {
-                texteIdee = texteReconnu
-            }
-        }
-    }
-
-    fun lancerDicteeVocale() {
-        val intention = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
-            putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-            putExtra(RecognizerIntent.EXTRA_LANGUAGE, "fr-FR")
-            putExtra(RecognizerIntent.EXTRA_PROMPT, "Dicte ton idée")
-        }
-        lanceurVocal.launch(intention)
-    }
+    var afficherAjoutNote by remember { mutableStateOf(false) }
+    var texteNouvelleNote by remember { mutableStateOf("") }
 
     fun bascculerTermine(tache: Tache) {
         listeTaches = listeTaches.map {
@@ -148,7 +117,7 @@ fun EcranAccueil(taches: List<Tache>) {
                 }
             }
 
-             item {
+            item {
                 Card(
                     shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(containerColor = Color.White),
@@ -188,7 +157,7 @@ fun EcranAccueil(taches: List<Tache>) {
                         }
                     }
                 }
-             }
+            }
 
             item {
                 Card(
@@ -231,78 +200,46 @@ fun EcranAccueil(taches: List<Tache>) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
+                            horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(Icons.Filled.Lightbulb, contentDescription = null, tint = OrKrenoa)
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text("Boîte à idées", fontWeight = FontWeight.Bold)
-                            }
-                            Box(
-                                modifier = Modifier.size(24.dp).clip(CircleShape).background(FondGris),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text("${idees.size}", style = MaterialTheme.typography.labelSmall)
-                            }
+                            Text("Mes notes", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                            Text("Voir tout", color = VioletKrenoa, fontWeight = FontWeight.Medium)
                         }
-                        Spacer(modifier = Modifier.height(10.dp))
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            OutlinedTextField(
-                                value = texteIdee,
-                                onValueChange = { texteIdee = it },
-                                label = { Text("Nouvelle idée") },
-                                shape = RoundedCornerShape(12.dp),
-                                modifier = Modifier.weight(1f)
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            OutlinedButton(onClick = { lancerDicteeVocale() }, shape = RoundedCornerShape(50)) {
-                                Text("🎤")
-                            }
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Button(
-                                onClick = {
-                                    if (texteIdee.isNotBlank()) {
-                                        idees = idees + texteIdee
-                                        sauvegarderIdees(context, idees)
-                                        texteIdee = ""
-                                    }
-                                },
-                                shape = RoundedCornerShape(12.dp),
-                                colors = ButtonDefaults.buttonColors(containerColor = OrKrenoa)
-                            ) { Text("+") }
-                        }
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text("Astuce : appui simple pour créer une tâche, appui long pour supprimer", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
-                    }
-                }
-            }
+                        Spacer(modifier = Modifier.height(8.dp))
 
-            items(idees) { idee ->
-                Card(
-                    shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = OrKrenoa.copy(alpha = 0.12f)),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .combinedClickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = null,
-                            onClick = { ideeAConvertir = idee },
-                            onLongClick = { ideeASupprimer = idee }
-                        )
-                ) {
-                    Text(text = idee, modifier = Modifier.padding(12.dp))
+                        if (idees.isEmpty()) {
+                            Text("Aucune note pour le moment", color = Color.Gray, style = MaterialTheme.typography.bodySmall)
+                        } else {
+                            idees.take(3).forEachIndexed { index, idee ->
+                                Text(
+                                    text = idee,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .combinedClickable(
+                                            interactionSource = remember { MutableInteractionSource() },
+                                            indication = null,
+                                            onClick = { ideeAConvertir = idee },
+                                            onLongClick = { ideeASupprimer = idee }
+                                        )
+                                        .padding(vertical = 10.dp)
+                                )
+                                if (index != idees.take(3).lastIndex) {
+                                    Divider(color = Color(0xFFF0EEF7))
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
 
         FloatingActionButton(
-            onClick = { afficherAjoutRapide = true },
-            containerColor = VioletKrenoa,
+            onClick = { afficherAjoutNote = true },
+            containerColor = OrKrenoa,
             shape = CircleShape,
             modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 24.dp)
         ) {
-            Icon(Icons.Filled.Add, contentDescription = "Ajouter une tâche", tint = Color.White)
+            Icon(Icons.Filled.Add, contentDescription = "Ajouter une note", tint = Color.White)
         }
     }
 
@@ -319,6 +256,35 @@ fun EcranAccueil(taches: List<Tache>) {
                 listeTaches = misesAJour
                 programmerAlarme(context, nouvelle)
                 afficherAjoutRapide = false
+            }
+        )
+    }
+
+    if (afficherAjoutNote) {
+        AlertDialog(
+            onDismissRequest = { afficherAjoutNote = false; texteNouvelleNote = "" },
+            title = { Text("Nouvelle note") },
+            text = {
+                OutlinedTextField(
+                    value = texteNouvelleNote,
+                    onValueChange = { texteNouvelleNote = it },
+                    label = { Text("Écris ta note") },
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier.fillMaxWidth()
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    if (texteNouvelleNote.isNotBlank()) {
+                        idees = idees + texteNouvelleNote
+                        sauvegarderIdees(context, idees)
+                        texteNouvelleNote = ""
+                    }
+                    afficherAjoutNote = false
+                }) { Text("Enregistrer", color = OrKrenoa, fontWeight = FontWeight.Bold) }
+            },
+            dismissButton = {
+                TextButton(onClick = { afficherAjoutNote = false; texteNouvelleNote = "" }) { Text("Annuler") }
             }
         )
     }
@@ -345,7 +311,7 @@ fun EcranAccueil(taches: List<Tache>) {
     ideeASupprimer?.let { idee ->
         AlertDialog(
             onDismissRequest = { ideeASupprimer = null },
-            title = { Text("Supprimer cette idée ?") },
+            title = { Text("Supprimer cette note ?") },
             text = { Text("« $idee » sera supprimée.") },
             confirmButton = {
                 TextButton(onClick = {
