@@ -31,6 +31,7 @@ import com.krenoa.app.ui.EcranPlanning
 import com.krenoa.app.ui.EcranProfil
 import com.krenoa.app.ui.EcranRappels
 import com.krenoa.app.ui.EcranTaches
+import com.krenoa.app.ui.EcranSplash
 
 private val VioletKrenoa = Color(0xFF7B5CFF)
 private val OrKrenoa = Color(0xFFF6B93B)
