@@ -149,12 +149,46 @@ fun EcranAccueil(taches: List<Tache>) {
             }
 
              item {
-                TextButton(onClick = { afficherAjoutRapide = true }) {
-                    Icon(Icons.Filled.Add, contentDescription = null, tint = VioletKrenoa)
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text("Ajouter une tâche", color = VioletKrenoa, fontWeight = FontWeight.Medium)
+                Card(
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text("Mes tâches du jour", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                            Text("Voir tout", color = VioletKrenoa, fontWeight = FontWeight.Medium)
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        val tachesDuJour = listeTaches.filter { !it.terminee }.take(5)
+                        if (tachesDuJour.isEmpty()) {
+                            Text("Aucune tâche pour aujourd'hui", color = Color.Gray, style = MaterialTheme.typography.bodySmall)
+                            Spacer(modifier = Modifier.height(8.dp))
+                        } else {
+                            tachesDuJour.forEachIndexed { index, tache ->
+                                LigneTache(tache = tache, surCoche = { bascculerTermine(tache) })
+                                if (index != tachesDuJour.lastIndex) {
+                                    Divider(color = Color(0xFFF0EEF7))
+                                }
+                            }
+                        }
+
+                        TextButton(
+                            onClick = { afficherAjoutRapide = true },
+                            modifier = Modifier.align(Alignment.CenterHorizontally)
+                        ) {
+                            Icon(Icons.Filled.Add, contentDescription = null, tint = VioletKrenoa)
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text("Ajouter une tâche", color = VioletKrenoa, fontWeight = FontWeight.Medium)
+                        }
+                    }
                 }
-            }
+             }
 
             item {
                 Text("Prochains rappels", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
@@ -335,33 +369,26 @@ private fun AnneauProgression(pourcentage: Int) {
 }
 
 @Composable
-private fun CarteTache(tache: Tache, surCoche: () -> Unit) {
-    Card(
-        shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-        modifier = Modifier.fillMaxWidth()
+private fun LigneTache(tache: Tache, surCoche: () -> Unit) {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Row(
-            modifier = Modifier.padding(14.dp).fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Checkbox(checked = tache.terminee, onCheckedChange = { surCoche() }, colors = CheckboxDefaults.colors(checkedColor = VioletKrenoa))
-                Column {
-                    Text(tache.titre, fontWeight = FontWeight.Medium)
-                    Text(tache.rappel, style = MaterialTheme.typography.bodySmall, color = Color.Gray)
-                }
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Checkbox(checked = tache.terminee, onCheckedChange = { surCoche() }, colors = CheckboxDefaults.colors(checkedColor = VioletKrenoa))
+            Column {
+                Text(tache.titre, fontWeight = FontWeight.Medium)
+                Text(tache.rappel, style = MaterialTheme.typography.bodySmall, color = Color.Gray)
             }
-            Box(
-    modifier = Modifier
-        .clip(RoundedCornerShape(50))
-        .background(tache.priorite.couleur.copy(alpha = 0.15f))
-        .padding(horizontal = 10.dp, vertical = 4.dp)
-) {
-    Text(tache.priorite.libelle, style = MaterialTheme.typography.labelSmall, color = tache.priorite.couleur)
-}
+        }
+        Box(
+            modifier = Modifier
+                .clip(RoundedCornerShape(50))
+                .background(tache.priorite.couleur.copy(alpha = 0.15f))
+                .padding(horizontal = 10.dp, vertical = 4.dp)
+        ) {
+            Text(tache.priorite.libelle, style = MaterialTheme.typography.labelSmall, color = tache.priorite.couleur)
         }
     }
 }
