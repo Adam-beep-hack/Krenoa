@@ -1,4 +1,4 @@
-package com.nexora.app.model
+package com.krenoa.app.model
 
 data class BlocHoraire(
     val jour: String,
