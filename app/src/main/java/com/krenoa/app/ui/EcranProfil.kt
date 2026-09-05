@@ -1,4 +1,4 @@
-package com.nexora.app.ui
+package com.krenoa.app.ui
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -9,10 +9,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.nexora.app.model.Tache
+import com.krenoa.app.model.Tache
 
-private val VioletNexora = Color(0xFF7B5CFF)
-private val OrNexora = Color(0xFFF6B93B)
+private val VioletKrenoa = Color(0xFF7B5CFF)
+private val OrKrenoa = Color(0xFFF6B93B)
 
 @Composable
 fun EcranProfil(taches: List<Tache>) {
@@ -26,7 +26,7 @@ fun EcranProfil(taches: List<Tache>) {
         Spacer(modifier = Modifier.height(20.dp))
 
         Surface(
-            color = VioletNexora,
+            color = VioletKrenoa,
             shape = RoundedCornerShape(50),
             modifier = Modifier.size(80.dp)
         ) {
@@ -36,7 +36,7 @@ fun EcranProfil(taches: List<Tache>) {
         }
 
         Spacer(modifier = Modifier.height(12.dp))
-        Text(text = "NEXORA", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, color = VioletNexora)
+        Text(text = "KRENOA", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, color = VioletKrenoa)
         Text(text = "Organise aujourd'hui, construis demain.", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -60,7 +60,7 @@ fun EcranProfil(taches: List<Tache>) {
                 modifier = Modifier.weight(1f)
             ) {
                 Column(modifier = Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(text = "$terminees", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = OrNexora)
+                    Text(text = "$terminees", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = OrKrenoa)
                     Text(text = "Accomplies", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
                 }
             }
