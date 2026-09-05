@@ -1,4 +1,4 @@
-package com.nexora.app.ui
+package com.krenoa.app.ui
 
 import android.app.TimePickerDialog
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -16,12 +16,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.nexora.app.data.chargerPlanning
-import com.nexora.app.data.sauvegarderPlanning
-import com.nexora.app.model.BlocHoraire
+import com.krenoa.app.data.chargerPlanning
+import com.krenoa.app.data.sauvegarderPlanning
+import com.krenoa.app.model.BlocHoraire
 import java.util.Calendar
 
-private val VioletNexora = Color(0xFF7B5CFF)
+private val VioletKrenoa = Color(0xFF7B5CFF)
 private val JoursSemaine = listOf("Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche")
 
 fun heureVersMinutes(heure: String): Int {
@@ -72,7 +72,7 @@ fun EcranPlanning() {
             Text(text = "Mon emploi du temps", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
             FloatingActionButton(
                 onClick = { formulaireOuvert = true },
-                containerColor = VioletNexora,
+                containerColor = VioletKrenoa,
                 shape = RoundedCornerShape(50)
             ) {
                 Text("+", style = MaterialTheme.typography.headlineSmall, color = Color.White)
@@ -87,7 +87,7 @@ fun EcranPlanning() {
             verticalAlignment = Alignment.CenterVertically
         ) {
             TextButton(onClick = { indexJour = (indexJour - 1 + 7) % 7 }) { Text("◀") }
-            Text(text = jourActuel, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = VioletNexora)
+            Text(text = jourActuel, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = VioletKrenoa)
             TextButton(onClick = { indexJour = (indexJour + 1) % 7 }) { Text("▶") }
         }
 
@@ -102,7 +102,7 @@ fun EcranPlanning() {
                 items(blocsDuJour) { bloc ->
                     Card(
                         shape = RoundedCornerShape(14.dp),
-                        colors = CardDefaults.cardColors(containerColor = VioletNexora.copy(alpha = 0.12f)),
+                        colors = CardDefaults.cardColors(containerColor = VioletKrenoa.copy(alpha = 0.12f)),
                         modifier = Modifier
                             .fillMaxWidth()
                             .combinedClickable(
