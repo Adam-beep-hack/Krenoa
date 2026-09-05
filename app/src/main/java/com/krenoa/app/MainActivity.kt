@@ -14,7 +14,6 @@ import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Chat
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -30,9 +29,9 @@ import com.krenoa.app.ui.EcranAccueil
 import com.krenoa.app.ui.EcranAssistant
 import com.krenoa.app.ui.EcranPlanning
 import com.krenoa.app.ui.EcranProfil
-import com.krenoa.app.ui.EcranRappels
 import com.krenoa.app.ui.EcranTaches
 import com.krenoa.app.ui.EcranSplash
+import com.krenoa.app.ui.EcranTousRappels
 
 private val VioletKrenoa = Color(0xFF7B5CFF)
 private val OrKrenoa = Color(0xFFF6B93B)
@@ -85,13 +84,17 @@ fun EcranPrincipal() {
         Triple("Accueil", Icons.Filled.Home, 0),
         Triple("Tâches", Icons.Filled.CheckCircle, 1),
         Triple("Planning", Icons.Filled.DateRange, 2),
-        Triple("Rappels", Icons.Filled.Notifications, 3),
-        Triple("Assistant", Icons.Filled.Chat, 4),
-        Triple("Profil", Icons.Filled.Person, 5)
+        Triple("Assistant", Icons.Filled.Chat, 3),
+        Triple("Profil", Icons.Filled.Person, 4)
     )
 
     if (ecranDetail == "toutes_taches") {
         EcranToutesTaches(onRetour = { ecranDetail = null })
+        return
+    }
+
+    if (ecranDetail == "tous_rappels") {
+        EcranTousRappels(onRetour = { ecranDetail = null })
         return
     }
 
@@ -117,12 +120,15 @@ fun EcranPrincipal() {
     ) { paddingInterieur ->
         Box(modifier = Modifier.fillMaxSize().padding(paddingInterieur)) {
             when (ongletSelectionne) {
-                0 -> EcranAccueil(chargerTaches(context), onVoirToutTaches = { ecranDetail = "toutes_taches" })
+                0 -> EcranAccueil(
+                    chargerTaches(context),
+                    onVoirToutTaches = { ecranDetail = "toutes_taches" },
+                    onVoirToutRappels = { ecranDetail = "tous_rappels" }
+                )
                 1 -> EcranTaches()
                 2 -> EcranPlanning()
-                3 -> EcranRappels(chargerTaches(context))
-                4 -> EcranAssistant()
-                5 -> EcranProfil(chargerTaches(context))
+                3 -> EcranAssistant()
+                4 -> EcranProfil(chargerTaches(context))
             }
         }
     }
