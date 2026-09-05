@@ -1,6 +1,7 @@
 package com.krenoa.app
 
 import android.Manifest
+import com.krenoa.app.ui.EcranToutesTaches
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -116,7 +117,7 @@ fun EcranPrincipal() {
     ) { paddingInterieur ->
         Box(modifier = Modifier.fillMaxSize().padding(paddingInterieur)) {
             when (ongletSelectionne) {
-                0 -> EcranAccueil(chargerTaches(context))
+                0 -> EcranAccueil(chargerTaches(context), onVoirToutTaches = { ecranDetail = "toutes_taches" })
                 1 -> EcranTaches()
                 2 -> EcranPlanning()
                 3 -> EcranRappels(chargerTaches(context))
