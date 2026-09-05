@@ -191,16 +191,33 @@ fun EcranAccueil(taches: List<Tache>) {
              }
 
             item {
-                Text("Prochains rappels", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-            }
+                Card(
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text("Prochains rappels", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                            Text("Voir tout", color = VioletKrenoa, fontWeight = FontWeight.Medium)
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
 
-            if (prochainsRappels.isEmpty()) {
-                item {
-                    Text("Aucun rappel à venir", color = Color.Gray, style = MaterialTheme.typography.bodySmall)
-                }
-            } else {
-                items(prochainsRappels) { tache ->
-                    CarteRappel(tache = tache)
+                        if (prochainsRappels.isEmpty()) {
+                            Text("Aucun rappel à venir", color = Color.Gray, style = MaterialTheme.typography.bodySmall)
+                        } else {
+                            prochainsRappels.forEachIndexed { index, tache ->
+                                LigneRappel(tache = tache)
+                                if (index != prochainsRappels.lastIndex) {
+                                    Divider(color = Color(0xFFF0EEF7))
+                                }
+                            }
+                        }
+                    }
                 }
             }
 
@@ -394,26 +411,19 @@ private fun LigneTache(tache: Tache, surCoche: () -> Unit) {
 }
 
 @Composable
-private fun CarteRappel(tache: Tache) {
+private fun LigneRappel(tache: Tache) {
     val diffMillis = tache.rappelMillis - System.currentTimeMillis()
     val heures = diffMillis / (1000 * 60 * 60)
     val minutes = (diffMillis / (1000 * 60)) % 60
-    Card(
-        shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-        modifier = Modifier.fillMaxWidth()
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(
-            modifier = Modifier.padding(14.dp).fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column {
-                Text(tache.titre, fontWeight = FontWeight.Medium)
-                Text(tache.rappel, style = MaterialTheme.typography.bodySmall, color = Color.Gray)
-            }
-            Text("Dans ${heures}h ${minutes}m", color = VioletKrenoa, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.bodySmall)
+        Column {
+            Text(tache.titre, fontWeight = FontWeight.Medium)
+            Text(tache.rappel, style = MaterialTheme.typography.bodySmall, color = Color.Gray)
         }
+        Text("Dans ${heures}h ${minutes}m", color = VioletKrenoa, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.bodySmall)
     }
 }
