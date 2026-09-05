@@ -85,7 +85,7 @@ fun EcranAssistant() {
                     }
                 },
                 shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = VioletNexora)
+                colors = ButtonDefaults.buttonColors(containerColor = VioletKrenoa)
             ) {
                 Text("Envoyer")
             }
