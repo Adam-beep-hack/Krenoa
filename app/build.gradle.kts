@@ -16,6 +16,21 @@ android {
         buildConfigField("String", "GEMINI_API_KEY", "\"${project.findProperty("GEMINI_API_KEY") ?: ""}\"")
     }
 
+    signingConfigs {
+        create("krenoa") {
+            storeFile = file("krenoa-release.keystore")
+            storePassword = project.findProperty("KEYSTORE_PASSWORD") as String? ?: ""
+            keyAlias = project.findProperty("KEY_ALIAS") as String? ?: ""
+            keyPassword = project.findProperty("KEY_PASSWORD") as String? ?: ""
+        }
+    }
+
+    buildTypes {
+        getByName("debug") {
+            signingConfig = signingConfigs.getByName("krenoa")
+        }
+    }
+
     buildFeatures {
         compose = true
         buildConfig = true
