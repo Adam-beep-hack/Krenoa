@@ -24,16 +24,16 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
-import com.nexora.app.data.chargerTaches
-import com.nexora.app.ui.EcranAccueil
-import com.nexora.app.ui.EcranAssistant
-import com.nexora.app.ui.EcranPlanning
-import com.nexora.app.ui.EcranProfil
-import com.nexora.app.ui.EcranRappels
-import com.nexora.app.ui.EcranTaches
+import com.krenoa.app.data.chargerTaches
+import com.krenoa.app.ui.EcranAccueil
+import com.krenoa.app.ui.EcranAssistant
+import com.krenoa.app.ui.EcranPlanning
+import com.krenoa.app.ui.EcranProfil
+import com.krenoa.app.ui.EcranRappels
+import com.krenoa.app.ui.EcranTaches
 
-private val VioletNexora = Color(0xFF7B5CFF)
-private val OrNexora = Color(0xFFF6B93B)
+private val VioletKrenoa = Color(0xFF7B5CFF)
+private val OrKrenoa = Color(0xFFF6B93B)
 private val FondClair = Color(0xFFF9F8FF)
 
 class MainActivity : ComponentActivity() {
@@ -55,8 +55,8 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val schemaCouleurs = lightColorScheme(
-                primary = VioletNexora,
-                secondary = OrNexora,
+                primary = VioletKrenoa,
+                secondary = OrKrenoa,
                 background = FondClair,
                 surface = Color.White
             )
@@ -93,9 +93,9 @@ fun EcranPrincipal() {
                         icon = { Icon(icone, contentDescription = label) },
                         label = { Text(label, style = MaterialTheme.typography.labelSmall) },
                         colors = NavigationBarItemDefaults.colors(
-                            selectedIconColor = VioletNexora,
-                            selectedTextColor = VioletNexora,
-                            indicatorColor = VioletNexora.copy(alpha = 0.15f)
+                            selectedIconColor = VioletKrenoa,
+                            selectedTextColor = VioletKrenoa,
+                            indicatorColor = VioletKrenoa.copy(alpha = 0.15f)
                         )
                     )
                 }
