@@ -37,7 +37,7 @@ private val VioletKrenoa = Color(0xFF7B5CFF)
 private val OrKrenoa = Color(0xFFF6B93B)
 private val FondGris = Color(0xFFF5F4FA)
 
-@@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun EcranAccueil(taches: List<Tache>, onVoirToutTaches: () -> Unit = {}) {
     val context = LocalContext.current
@@ -126,9 +126,6 @@ fun EcranAccueil(taches: List<Tache>, onVoirToutTaches: () -> Unit = {}) {
                             modifier = Modifier.clickable { onVoirToutTaches() }
                         )
                     }
-                    Spacer(modifier = Modifier.height(4.dp))
-
-                    val tachesDuJour = listeTaches.filter { !it.terminee }.take(2)
                     Spacer(modifier = Modifier.height(4.dp))
 
                     val tachesDuJour = listeTaches.filter { !it.terminee }.take(2)
