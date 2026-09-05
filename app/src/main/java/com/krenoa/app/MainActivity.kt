@@ -62,7 +62,12 @@ class MainActivity : ComponentActivity() {
             )
             MaterialTheme(colorScheme = schemaCouleurs) {
                 Surface(modifier = Modifier.fillMaxSize(), color = FondClair) {
-                    EcranPrincipal()
+                    var affichageSplash by remember { mutableStateOf(true) }
+                    if (affichageSplash) {
+                        EcranSplash(surChargementTermine = { affichageSplash = false })
+                    } else {
+                        EcranPrincipal()
+                    }
                 }
             }
         }
