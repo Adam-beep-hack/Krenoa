@@ -10,7 +10,7 @@ import java.net.URL
 
 suspend fun demanderAGemini(question: String): String = withContext(Dispatchers.IO) {
     try {
-        val url = URL("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${BuildConfig.GEMINI_API_KEY}")
+        val url = URL("https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${BuildConfig.GEMINI_API_KEY}")
         val connexion = url.openConnection() as HttpURLConnection
         connexion.requestMethod = "POST"
         connexion.setRequestProperty("Content-Type", "application/json")
