@@ -179,13 +179,13 @@ fun EcranTaches() {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column {
-                Text(text = "NEXORA", style = MaterialTheme.typography.labelLarge, color = VioletNexora, fontWeight = FontWeight.Bold)
+                Text(text = "NEXORA", style = MaterialTheme.typography.labelLarge, color = VioletKrenoa, fontWeight = FontWeight.Bold)
                 Text(text = "Mes tâches", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
             }
             Button(
                 onClick = { ajoutOuvert = true },
                 shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = VioletNexora)
+                colors = ButtonDefaults.buttonColors(containerColor = VioletKrenoa)
             ) {
                 Text("+ Ajouter")
             }
@@ -223,7 +223,7 @@ fun EcranTaches() {
                                 taches = taches.map { if (it === tache) it.copy(terminee = coche) else it }
                                 sauvegarderTaches(context, taches)
                             },
-                            colors = CheckboxDefaults.colors(checkedColor = VioletNexora)
+                            colors = CheckboxDefaults.colors(checkedColor = VioletKrenoa)
                         )
                         Column {
                             Text(text = tache.titre, textDecoration = if (tache.terminee) TextDecoration.LineThrough else null)
@@ -235,7 +235,7 @@ fun EcranTaches() {
                                 joursTexte ?: tache.frequence.libelle.takeIf { tache.frequence != Frequence.UNIQUE }
                             ).joinToString(" · ")
                             if (details.isNotBlank()) {
-                                Text(text = details, style = MaterialTheme.typography.bodySmall, color = VioletNexora)
+                                Text(text = details, style = MaterialTheme.typography.bodySmall, color = VioletKrenoa)
                             }
                         }
                     }
