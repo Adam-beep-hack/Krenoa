@@ -111,7 +111,7 @@ fun EcranAccueil(taches: List<Tache>, onVoirToutTaches: () -> Unit = {}, onVoirT
                         Text("Tu es sur la bonne voie !", color = Color(0xFFB9A6FF), style = MaterialTheme.typography.labelSmall)
                         Text("$terminees / $total tâches terminées", color = Color(0xFFB9A6FF), style = MaterialTheme.typography.labelSmall)
                     }
-                    AnneauProgressionttoutcentage= progression)
+                    AnneauProgression(pourcentage = progression)
                 }
             }
 
