@@ -39,7 +39,7 @@ private val FondGris = Color(0xFFF5F4FA)
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun EcranAccueil(taches: List<Tache>, onVoirToutTaches: () -> Unit = {}, onVoirToutRappels: () -> Unit = {}) {
+fun EcranAccueil(taches: List<Tache>, onVoirToutTaches: () -> Unit = {}, onVoirToutRappels: () -> Unit = {}, onVoirToutNotes: () -> Unit = {}) {
     val context = LocalContext.current
     var listeTaches by remember { mutableStateOf(taches) }
     val total = listeTaches.size
@@ -193,7 +193,13 @@ fun EcranAccueil(taches: List<Tache>, onVoirToutTaches: () -> Unit = {}, onVoirT
                 Column(modifier = Modifier.padding(12.dp)) {
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                         Text("Mes notes", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
-                        Text("Voir tout", color = VioletKrenoa, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Medium)
+                        Text(
+                            "Voir tout",
+                            color = VioletKrenoa,
+                            style = MaterialTheme.typography.bodySmall,
+                            fontWeight = FontWeight.Medium,
+                            modifier = Modifier.clickable { onVoirToutNotes() }
+                        )
                     }
                     Spacer(modifier = Modifier.height(4.dp))
 
