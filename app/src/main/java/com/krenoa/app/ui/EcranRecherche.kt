@@ -59,4 +59,115 @@ fun EcranRecherche(onRetour: () -> Unit) {
     }
 
     Box(modifier = Modifier.fillMaxSize().background(FondGris)) {
-        Column(modifier = Modifier.fillMaxSize()
+        Column(modifier = Modifier.fillMaxSize()) {
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(onClick = onRetour) {
+                    Icon(Icons.Filled.ArrowBack, contentDescription = "Retour", tint = Color(0xFF2A2438))
+                }
+                Spacer(modifier = Modifier.width(4.dp))
+                OutlinedTextField(
+                    value = requete,
+                    onValueChange = { requete = it },
+                    placeholder = { Text("Rechercher une tâche ou une note...") },
+                    singleLine = true,
+                    shape = RoundedCornerShape(50),
+                    modifier = Modifier.weight(1f)
+                )
+            }
+
+            LazyColumn(
+                modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                contentPadding = PaddingValues(bottom = 40.dp)
+            ) {
+                if (requete.isBlank()) {
+                    item {
+                        Text("Tape un mot-clé pour chercher parmi tes tâches et tes notes", color = Color.Gray)
+                    }
+                } else if (resultats.isEmpty()) {
+                    item {
+                        Text("Aucun résultat pour « $requete »", color = Color.Gray)
+                    }
+                } else {
+                    items(resultats) { resultat ->
+                        when (resultat) {
+                            is ResultatRecherche.ResultatTache -> {
+                                Card(
+                                    shape = RoundedCornerShape(12.dp),
+                                    colors = CardDefaults.cardColors(containerColor = BlancLait),
+                                    modifier = Modifier.fillMaxWidth().clickable { tacheEnEdition = resultat.tache }
+                                ) {
+                                    Row(
+                                        modifier = Modifier.padding(12.dp).fillMaxWidth(),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Icon(Icons.Filled.CheckCircle, contentDescription = null, tint = VioletKrenoa, modifier = Modifier.size(18.dp))
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Column {
+                                            Text(resultat.tache.titre, fontWeight = FontWeight.Medium)
+                                            Text(resultat.tache.rappel, style = MaterialTheme.typography.bodySmall, color = Color.Gray)
+                                        }
+                                    }
+                                }
+                            }
+                            is ResultatRecherche.ResultatNote -> {
+                                Card(
+                                    shape = RoundedCornerShape(12.dp),
+                                    colors = CardDefaults.cardColors(containerColor = BlancLait),
+                                    modifier = Modifier.fillMaxWidth().clickable { noteAConvertir = resultat.texte }
+                                ) {
+                                    Row(
+                                        modifier = Modifier.padding(12.dp).fillMaxWidth(),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Icon(Icons.Filled.Description, contentDescription = null, tint = VioletKrenoa, modifier = Modifier.size(18.dp))
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Text(resultat.texte, fontWeight = FontWeight.Medium)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    tacheEnEdition?.let { tache ->
+        FormulaireTache(
+            titre = "Modifier la tâche",
+            tacheExistante = tache,
+            onFermer = { tacheEnEdition = null },
+            onValider = { titreV, rappelV, millisV, prioriteV, frequenceV, joursV ->
+                val modifiee = tache.copy(titre = titreV, rappel = rappelV, rappelMillis = millisV, priorite = prioriteV, frequence = frequenceV, joursRepetition = joursV)
+                val misesAJour = taches.map { if (it == tache) modifiee else it }
+                sauvegarderTaches(context, misesAJour)
+                taches = misesAJour
+                programmerAlarme(context, modifiee)
+                tacheEnEdition = null
+            }
+        )
+    }
+
+    noteAConvertir?.let { note ->
+        FormulaireTache(
+            titre = "Créer une tâche",
+            tacheExistante = Tache(titre = note),
+            onFermer = { noteAConvertir = null },
+            onValider = { titreV, rappelV, millisV, prioriteV, frequenceV, joursV ->
+                val nouvelle = Tache(titreV, rappel = rappelV, rappelMillis = millisV, priorite = prioriteV, frequence = frequenceV, joursRepetition = joursV)
+                val actuelles = chargerTaches(context)
+                val misesAJour = actuelles + nouvelle
+                sauvegarderTaches(context, misesAJour)
+                taches = misesAJour
+                programmerAlarme(context, nouvelle)
+                idees = idees.filter { it != note }
+                sauvegarderIdees(context, idees)
+                noteAConvertir = null
+            }
+        )
+    }
+}
