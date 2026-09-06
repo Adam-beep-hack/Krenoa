@@ -111,7 +111,7 @@ fun EcranAccueil(taches: List<Tache>, onVoirToutTaches: () -> Unit = {}, onVoirT
                         Text("Tu es sur la bonne voie !", color = Color(0xFFB9A6FF), style = MaterialTheme.typography.labelSmall)
                         Text("$terminees / $total tâches terminées", color = Color(0xFFB9A6FF), style = MaterialTheme.typography.labelSmall)
                     }
-                    AnneauProgression(ppourcentage= progression)
+                    AnneauProgressionttoutcentage= progression)
                 }
             }
 
@@ -125,7 +125,7 @@ fun EcranAccueil(taches: List<Tache>, onVoirToutTaches: () -> Unit = {}, onVoirT
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                         Text("Mes tâches du jour", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
                         Text(
-                            "Voir ttout,
+                            "Voir tout",
                             color = VioletKrenoa,
                             style = MaterialTheme.typography.bodySmall,
                             fontWeight = FontWeight.Medium,
