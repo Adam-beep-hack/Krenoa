@@ -1,6 +1,7 @@
 package com.krenoa.app
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -24,6 +25,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.krenoa.app.data.chargerTaches
+import com.krenoa.app.data.programmerAlarme
+import com.krenoa.app.data.sauvegarderTaches
+import com.krenoa.app.model.Tache
 import com.krenoa.app.ui.EcranAccueil
 import com.krenoa.app.ui.EcranAssistant
 import com.krenoa.app.ui.EcranPlanning
@@ -34,6 +38,7 @@ import com.krenoa.app.ui.EcranTousRappels
 import com.krenoa.app.ui.EcranToutesTaches
 import com.krenoa.app.ui.EcranToutesNotes
 import com.krenoa.app.ui.EcranRecherche
+import com.krenoa.app.ui.FormulaireTache
 
 private val VioletKrenoa = Color(0xFF7B5CFF)
 private val OrKrenoa = Color(0xFFF6B93B)
@@ -45,6 +50,8 @@ class MainActivity : ComponentActivity() {
         ActivityResultContracts.RequestPermission()
     ) { }
 
+    private val tacheAOuvrir = mutableStateOf<String?>(null)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -55,6 +62,8 @@ class MainActivity : ComponentActivity() {
                 demandePermission.launch(Manifest.permission.POST_NOTIFICATIONS)
             }
         }
+
+        tacheAOuvrir.value = intent.getStringExtra("ouvrir_tache")
 
         setContent {
             val schemaCouleurs = lightColorScheme(
@@ -69,19 +78,37 @@ class MainActivity : ComponentActivity() {
                     if (affichageSplash) {
                         EcranSplash(surChargementTermine = { affichageSplash = false })
                     } else {
-                        EcranPrincipal()
+                        EcranPrincipal(
+                            titreTacheAOuvrir = tacheAOuvrir.value,
+                            onTacheOuverteConsommee = { tacheAOuvrir.value = null }
+                        )
                     }
                 }
             }
         }
     }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        tacheAOuvrir.value = intent.getStringExtra("ouvrir_tache")
+    }
 }
 
 @Composable
-fun EcranPrincipal() {
+fun EcranPrincipal(titreTacheAOuvrir: String? = null, onTacheOuverteConsommee: () -> Unit = {}) {
     var ongletSelectionne by remember { mutableStateOf(0) }
     var ecranDetail by remember { mutableStateOf<String?>(null) }
+    var tacheDepuisNotif by remember { mutableStateOf<Tache?>(null) }
     val context = LocalContext.current
+
+    LaunchedEffect(titreTacheAOuvrir) {
+        if (titreTacheAOuvrir != null) {
+            tacheDepuisNotif = chargerTaches(context).find { it.titre == titreTacheAOuvrir }
+            onTacheOuverteConsommee()
+        }
+    }
+
     val onglets = listOf(
         Triple("Accueil", Icons.Filled.Home, 0),
         Triple("Tâches", Icons.Filled.CheckCircle, 1),
@@ -109,7 +136,23 @@ fun EcranPrincipal() {
         EcranRecherche(onRetour = { ecranDetail = null })
         return
     }
-    
+
+    tacheDepuisNotif?.let { tache ->
+        FormulaireTache(
+            titre = "Modifier la tâche",
+            tacheExistante = tache,
+            onFermer = { tacheDepuisNotif = null },
+            onValider = { titreV, rappelV, millisV, prioriteV, frequenceV, joursV ->
+                val modifiee = tache.copy(titre = titreV, rappel = rappelV, rappelMillis = millisV, priorite = prioriteV, frequence = frequenceV, joursRepetition = joursV)
+                val actuelles = chargerTaches(context)
+                val misesAJour = actuelles.map { if (it == tache) modifiee else it }
+                sauvegarderTaches(context, misesAJour)
+                programmerAlarme(context, modifiee)
+                tacheDepuisNotif = null
+            }
+        )
+    }
+
     Scaffold(
         containerColor = FondClair,
         bottomBar = {
