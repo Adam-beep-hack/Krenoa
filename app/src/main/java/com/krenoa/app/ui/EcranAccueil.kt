@@ -40,7 +40,7 @@ private val BlancLait = Color(0xFFFFFBF2)
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun EcranAccueil(taches: List<Tache>, onVoirToutTaches: () -> Unit = {}, onVoirToutRappels: () -> Unit = {}, onVoirToutNotes: () -> Unit = {}) {
+fun EcranAccueil(taches: List<Tache>, onVoirToutTaches: () -> Unit = {}, onVoirToutRappels: () -> Unit = {}, onVoirToutNotes: () -> Unit = {}, onOuvrirRecherche: () -> Unit = {}) {
     val context = LocalContext.current
     var listeTaches by remember { mutableStateOf(taches) }
     val total = listeTaches.size
@@ -79,7 +79,12 @@ fun EcranAccueil(taches: List<Tache>, onVoirToutTaches: () -> Unit = {}, onVoirT
                 Icon(Icons.Filled.Menu, contentDescription = "Menu", tint = Color(0xFF2A2438), modifier = Modifier.size(20.dp))
                 Text("KRENOA", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = Color(0xFF2A2438))
                 Row {
-                    Icon(Icons.Filled.Search, contentDescription = "Rechercher", tint = Color(0xFF2A2438), modifier = Modifier.size(20.dp))
+                    Icon(
+                        Icons.Filled.Search,
+                        contentDescription = "Rechercher",
+                        tint = Color(0xFF2A2438),
+                        modifier = Modifier.size(20.dp).clickable { onOuvrirRecherche() }
+                    )
                     Spacer(modifier = Modifier.width(14.dp))
                     Icon(Icons.Filled.Notifications, contentDescription = "Notifications", tint = Color(0xFF2A2438), modifier = Modifier.size(20.dp))
                 }
@@ -106,7 +111,7 @@ fun EcranAccueil(taches: List<Tache>, onVoirToutTaches: () -> Unit = {}, onVoirT
                         Text("Tu es sur la bonne voie !", color = Color(0xFFB9A6FF), style = MaterialTheme.typography.labelSmall)
                         Text("$terminees / $total tâches terminées", color = Color(0xFFB9A6FF), style = MaterialTheme.typography.labelSmall)
                     }
-                    AnneauProgression(pourcentage = progression)
+                    AnneauProgression(ppourcentage= progression)
                 }
             }
 
@@ -120,7 +125,7 @@ fun EcranAccueil(taches: List<Tache>, onVoirToutTaches: () -> Unit = {}, onVoirT
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                         Text("Mes tâches du jour", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
                         Text(
-                            "Voir tout",
+                            "Voir ttout,
                             color = VioletKrenoa,
                             style = MaterialTheme.typography.bodySmall,
                             fontWeight = FontWeight.Medium,
