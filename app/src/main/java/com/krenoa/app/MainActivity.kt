@@ -1,7 +1,6 @@
 package com.krenoa.app
 
 import android.Manifest
-import com.krenoa.app.ui.EcranToutesTaches
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -32,6 +31,8 @@ import com.krenoa.app.ui.EcranProfil
 import com.krenoa.app.ui.EcranTaches
 import com.krenoa.app.ui.EcranSplash
 import com.krenoa.app.ui.EcranTousRappels
+import com.krenoa.app.ui.EcranToutesNotes
+import com.krenoa.app.ui.EcranToutesTaches
 
 private val VioletKrenoa = Color(0xFF7B5CFF)
 private val OrKrenoa = Color(0xFFF6B93B)
@@ -98,6 +99,10 @@ fun EcranPrincipal() {
         return
     }
 
+    if (ecranDetail == "toutes_notes") {
+        EcranToutesNotes(onRetour = { ecranDetail = null })
+        return
+    }
     Scaffold(
         containerColor = FondClair,
         bottomBar = {
@@ -123,7 +128,8 @@ fun EcranPrincipal() {
                 0 -> EcranAccueil(
                     chargerTaches(context),
                     onVoirToutTaches = { ecranDetail = "toutes_taches" },
-                    onVoirToutRappels = { ecranDetail = "tous_rappels" }
+                    onVoirToutRappels = { ecranDetail = "tous_rappels" },
+                    onVoirToutNotes = { ecranDetail = "toutes_notes" }
                 )
                 1 -> EcranTaches()
                 2 -> EcranPlanning()
