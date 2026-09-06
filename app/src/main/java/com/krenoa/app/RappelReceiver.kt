@@ -43,8 +43,19 @@ class RappelReceiver : BroadcastReceiver() {
             gestionnaireNotif.createNotificationChannel(canal)
         }
 
+        val intentionOuverture = Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            putExtra("ouvrir_tache", titre)
+        }
+        val pendingIntentOuverture = PendingIntent.getActivity(
+            context,
+            titre.hashCode(),
+            intentionOuverture,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
         val notification = NotificationCompat.Builder(context, "nexora_rappels")
-            .setContentTitle("⏰ Nexora")
+            .setContentTitle("⏰ Krenoa")
             .setContentText(titre)
             .setSmallIcon(android.R.drawable.ic_dialog_info)
             .setPriority(NotificationCompat.PRIORITY_MAX)
@@ -52,6 +63,7 @@ class RappelReceiver : BroadcastReceiver() {
             .setSound(sonAlarme)
             .setVibrate(longArrayOf(0, 500, 250, 500, 250, 500))
             .setAutoCancel(true)
+            .setContentIntent(pendingIntentOuverture)
             .build()
 
         gestionnaireNotif.notify(titre.hashCode(), notification)
