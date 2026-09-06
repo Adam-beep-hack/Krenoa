@@ -1,9 +1,9 @@
 package com.krenoa.app.ui
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
@@ -36,6 +36,7 @@ import com.krenoa.app.model.Tache
 private val VioletKrenoa = Color(0xFF7B5CFF)
 private val OrKrenoa = Color(0xFFF6B93B)
 private val FondGris = Color(0xFFF5F4FA)
+private val BlancLait = Color(0xFFFFFBF2)
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -85,7 +86,7 @@ fun EcranAccueil(taches: List<Tache>, onVoirToutTaches: () -> Unit = {}, onVoirT
             }
 
             Column {
-                Text("Bonjour, Hama ! 👋", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                Text("Bonjour, Hama ! \uD83D\uDC4B", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
                 Text("Prêt à accomplir de grandes choses aujourd'hui ?", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
             }
 
@@ -95,7 +96,7 @@ fun EcranAccueil(taches: List<Tache>, onVoirToutTaches: () -> Unit = {}, onVoirT
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Row(
-                    modifier = Modifier.padding(12.dp).fillMaxWidth(),
+                    modifier = Modifier.padding(14.dp).fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
@@ -126,16 +127,15 @@ fun EcranAccueil(taches: List<Tache>, onVoirToutTaches: () -> Unit = {}, onVoirT
                             modifier = Modifier.clickable { onVoirToutTaches() }
                         )
                     }
-                    Spacer(modifier = Modifier.height(4.dp))
+                    Spacer(modifier = Modifier.height(6.dp))
 
                     val tachesDuJour = listeTaches.filter { !it.terminee }.take(2)
                     if (tachesDuJour.isEmpty()) {
                         Text("Aucune tâche pour aujourd'hui", color = Color.Gray, style = MaterialTheme.typography.labelSmall)
                     } else {
-                        tachesDuJour.forEachIndexed { index, tache ->
-                            LigneTache(tache = tache, surCoche = { bascculerTermine(tache) })
-                            if (index != tachesDuJour.lastIndex) {
-                                Divider(color = Color(0xFFF0EEF7))
+                        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                            tachesDuJour.forEach { tache ->
+                                LigneTache(tache = tache, surCoche = { bascculerTermine(tache) })
                             }
                         }
                     }
@@ -169,15 +169,14 @@ fun EcranAccueil(taches: List<Tache>, onVoirToutTaches: () -> Unit = {}, onVoirT
                             modifier = Modifier.clickable { onVoirToutRappels() }
                         )
                     }
-                    Spacer(modifier = Modifier.height(4.dp))
+                    Spacer(modifier = Modifier.height(6.dp))
 
                     if (prochainsRappels.isEmpty()) {
                         Text("Aucun rappel à venir", color = Color.Gray, style = MaterialTheme.typography.labelSmall)
                     } else {
-                        prochainsRappels.forEachIndexed { index, tache ->
-                            LigneRappel(tache = tache)
-                            if (index != prochainsRappels.lastIndex) {
-                                Divider(color = Color(0xFFF0EEF7))
+                        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                            prochainsRappels.forEach { tache ->
+                                LigneRappel(tache = tache)
                             }
                         }
                     }
@@ -201,29 +200,33 @@ fun EcranAccueil(taches: List<Tache>, onVoirToutTaches: () -> Unit = {}, onVoirT
                             modifier = Modifier.clickable { onVoirToutNotes() }
                         )
                     }
-                    Spacer(modifier = Modifier.height(4.dp))
+                    Spacer(modifier = Modifier.height(6.dp))
 
                     val dernieresNotes = idees.takeLast(2).reversed()
                     if (dernieresNotes.isEmpty()) {
                         Text("Aucune note pour le moment", color = Color.Gray, style = MaterialTheme.typography.labelSmall)
                     } else {
-                        dernieresNotes.forEachIndexed { index, idee ->
-                            Text(
-                                text = idee,
-                                style = MaterialTheme.typography.bodySmall,
-                                maxLines = 1,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .combinedClickable(
-                                        interactionSource = remember { MutableInteractionSource() },
-                                        indication = null,
-                                        onClick = { ideeAConvertir = idee },
-                                        onLongClick = { ideeASupprimer = idee }
+                        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                            dernieresNotes.forEach { idee ->
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clip(RoundedCornerShape(10.dp))
+                                        .background(BlancLait)
+                                        .combinedClickable(
+                                            interactionSource = remember { MutableInteractionSource() },
+                                            indication = null,
+                                            onClick = { ideeAConvertir = idee },
+                                            onLongClick = { ideeASupprimer = idee }
+                                        )
+                                        .padding(horizontal = 10.dp, vertical = 8.dp)
+                                ) {
+                                    Text(
+                                        text = idee,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        maxLines = 1
                                     )
-                                    .padding(vertical = 6.dp)
-                            )
-                            if (index != dernieresNotes.lastIndex) {
-                                Divider(color = Color(0xFFF0EEF7))
+                                }
                             }
                         }
                     }
@@ -352,7 +355,11 @@ private fun AnneauProgression(pourcentage: Int) {
 @Composable
 private fun LigneTache(tache: Tache, surCoche: () -> Unit) {
     Row(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(10.dp))
+            .background(BlancLait)
+            .padding(horizontal = 8.dp, vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
@@ -364,8 +371,8 @@ private fun LigneTache(tache: Tache, surCoche: () -> Unit) {
                 modifier = Modifier.size(32.dp)
             )
             Column {
-                Text(tache.titre, fontWeight = FontWeight.Medium, style = MaterialTheme.typography.bodySmall, maxLines = 1)
-                Text(tache.rappel, style = MaterialTheme.typography.labelSmall, color = Color.Gray, maxLines = 1)
+                Text(tache.titre, fontWeight = FontWeight.Medium, style = MaterialTheme.typography.bodyMedium, maxLines = 1)
+                Text(tache.rappel, style = MaterialTheme.typography.bodySmall, color = Color.Gray, maxLines = 1)
             }
         }
         Box(
@@ -374,7 +381,7 @@ private fun LigneTache(tache: Tache, surCoche: () -> Unit) {
                 .background(tache.priorite.couleur.copy(alpha = 0.15f))
                 .padding(horizontal = 8.dp, vertical = 2.dp)
         ) {
-            Text(tache.priorite.libelle, style = MaterialTheme.typography.labelSmall, color = tache.priorite.couleur)
+            Text(tache.priorite.libelle, style = MaterialTheme.typography.labelMedium, color = tache.priorite.couleur)
         }
     }
 }
@@ -385,14 +392,18 @@ private fun LigneRappel(tache: Tache) {
     val heures = diffMillis / (1000 * 60 * 60)
     val minutes = (diffMillis / (1000 * 60)) % 60
     Row(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(10.dp))
+            .background(BlancLait)
+            .padding(horizontal = 10.dp, vertical = 8.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column {
-            Text(tache.titre, fontWeight = FontWeight.Medium, style = MaterialTheme.typography.bodySmall, maxLines = 1)
-            Text(tache.rappel, style = MaterialTheme.typography.labelSmall, color = Color.Gray, maxLines = 1)
+            Text(tache.titre, fontWeight = FontWeight.Medium, style = MaterialTheme.typography.bodyMedium, maxLines = 1)
+            Text(tache.rappel, style = MaterialTheme.typography.bodySmall, color = Color.Gray, maxLines = 1)
         }
-        Text("Dans ${heures}h ${minutes}m", color = VioletKrenoa, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.labelSmall)
+        Text("Dans ${heures}h ${minutes}m", color = VioletKrenoa, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.bodySmall)
     }
 }
